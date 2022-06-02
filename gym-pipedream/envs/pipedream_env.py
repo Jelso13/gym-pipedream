@@ -33,6 +33,7 @@ class PipeDreamEnv(gym.Env):
             pygame.display.init()
             self.window = pygame.display.set_mode((self.window_size, self.window_size))
             self.clock = pygame.time.Clock()
+        # Potentially include a curses rendering **
 
     def reset(self, seed=None, return_info=False, options=None):
         super().reset(seed=seed) # seed self.np_random
