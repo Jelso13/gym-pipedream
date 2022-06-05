@@ -1,7 +1,9 @@
 import gym
 from gym import spaces
 import numpy as np
+import random
 from typing import Optional
+from gym_pipedream.grid_elements import *
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
@@ -39,10 +41,18 @@ class PipeDreamEnv(gym.Env):
         super().reset(seed=seed) # seed self.np_random
 
         # init tap location
+        tap_location = get_random_location()
+        while self.valid_tap()
 
         # init walls if any
 
         # init list of next blocks
+
+    def valid_tap():
+        return 
+
+    def get_random_location(self, min_width=0, max_width=BOARD_WIDTH-1, min_height=0, max_height=BOARD_HEIGHT-1):
+        return (random.randint(1,BOARD_WIDTH-2), random.randint(1,BOARD_HEIGHT-2))
 
 
                 
