@@ -20,14 +20,14 @@ class PipeDreamEnv(gym.Env):
         self.window_size = 512  # The size of the PyGame window
 
         # observation space consists of grid representing every square
-        self.observation_space = spaces.Box(low=OBS_LOW, high=OBS_HIGH, shape=(self.width, self.height), dtype=np.int32)
+        self.observation_space = spaces.Box(low=OBS_LOW, high=OBS_HIGH, shape=(self.width, self.height), dtype=np.int8)
 
         # one action for each position on the grid
         self.action_space = spaces.MultiDiscrete([self.width, self.height])
         
         # handle the pygame render if render mode is human
         if render_mode == "human":
-            import pygame  # import here to avoid pygame dependency with no render
+            import pygame  # import here to avoid pygame dependency
 
             pygame.init()
             pygame.display.init()
@@ -43,6 +43,8 @@ class PipeDreamEnv(gym.Env):
         # init walls if any
 
         # init list of next blocks
+
+
                 
 
 if __name__ == "__main__":
