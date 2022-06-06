@@ -16,10 +16,33 @@ ENCODE_TILE = {
     "startright":       12
 }
 
+ENCODE_ASCII = {
+    "none":             "",
+    "vertical":         "║",
+    "horizontal":       "═",
+    "cross":            "╬",
+    "leftup":           "╝",
+    "leftdown":         "╗",
+    "rightup":          "╚",
+    "rightdown":        "╔",
+    "wall":             "█",
+    "startdown":        "v",
+    "startup":          "^",
+    "startleft":        "<",
+    "startright":       ">"
+}
+
 ENCODE_STATE = {
     "empty":            0,
     "full":             1,
     "none":             -1
+}
+
+ENCODE_DIRECTIONS = {
+    "up":               0,
+    "right":            1,
+    "down":             2,
+    "left":             3
 }
 
 # Base class for all tilesl
@@ -99,19 +122,3 @@ class Starting(Pipe):
         super().__init__("start"+direction)
         self.transition = direction
         self.state = 0.0001 # slight offset from 0 so it isnt empty
-
-
-if __name__=="__main__":
-
-    def all_subclasses(cls):
-        return list(set(cls.__subclasses__()).union(
-            [s for c in cls.__subclasses__() for s in all_subclasses(c)]))
-
-    subcls = [cl for cl in all_subclasses(Tile) if cl.__name__ != "Pipe"]
-
-    print(subcls)
-
-    for cl in subcls:
-        x = cl()
-        print("type {:<20s} encoding {:<10s}".format(str(x.type), str(x.get_encoding())))
-

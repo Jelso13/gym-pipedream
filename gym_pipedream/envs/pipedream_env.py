@@ -20,6 +20,8 @@ class PipeDreamEnv(gym.Env):
         self.width = width  # width of the playing area
         self.height = height  # height of the playing area
         self.window_size = 512  # The size of the PyGame window
+        #self.board = [[(0, 'none') for i in range(BOARD_WIDTH)] for j in range(BOARD_HEIGHT)]
+        self.board = [Floor()] * BOARD_WIDTH * BOARD_HEIGHT
 
         # observation space consists of grid representing every square
         self.observation_space = spaces.Box(low=OBS_LOW, high=OBS_HIGH, shape=(self.width, self.height), dtype=np.int8)
@@ -37,26 +39,53 @@ class PipeDreamEnv(gym.Env):
             self.clock = pygame.time.Clock()
         # Potentially include a curses rendering **
 
-    def reset(self, seed=None, return_info=False, options=None):
-        super().reset(seed=seed) # seed self.np_random
+    def reset(self, seed=0, return_info=False, options=None):
+        #super().reset(seed=seed) # seed self.np_random
 
         # init tap location
-        tap_location = get_random_location()
-        while self.valid_tap()
+        self.init_tap()
 
         # init walls if any
 
         # init list of next blocks
 
-    def valid_tap():
-        return 
+    def init_tap(self):
+        tap_location = list(self.get_random_location())
+        tap_direction = self.get_valid_tap_direction(tap_location)
+        self.set_board_position(tap_location, Starting(direction=tap_direction))
+
+
+    def get_valid_tap_direction(self, location):
+        edges = [0, BOARD_WIDTH-1, BOARD_HEIGHT-1]
+        directions = ["up", "right", "down", "left"]
+        x,y = location
+        if x == 0:
+            directions.pop(3)
+        if y == 0:
+            directions.pop(0)
+        if x == edges[1]:
+            directions.pop(1)
+        if y == edges[2]:
+            directions.pop(2)
+        return random.choice(directions)
 
     def get_random_location(self, min_width=0, max_width=BOARD_WIDTH-1, min_height=0, max_height=BOARD_HEIGHT-1):
-        return (random.randint(1,BOARD_WIDTH-2), random.randint(1,BOARD_HEIGHT-2))
+        return (random.randint(min_width, max_width), random.randint(min_height, max_height))
 
+    def set_board_position(self, loc, obj):
+        self.board[loc[1]*BOARD_WIDTH + loc[0]] = obj
 
-                
+    def print_board(self):
+        print("-"*130)
+        for i in range(BOARD_HEIGHT):
+            for j in range(BOARD_WIDTH):
+                #print("| {:^10s} ".format(self.board[i*BOARD_WIDTH + j].type), end="")
+                print("| {:^10s} ".format(ENCODE_ASCII[self.board[i*BOARD_WIDTH + j].type]), end="")
+            print("|\n" + "-"*130)
+
 
 if __name__ == "__main__":
     env = PipeDreamEnv()
+    state = env.reset()
+    env.print_board()
     print(env.observation_space.shape)
