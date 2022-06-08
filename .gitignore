@@ -1,3 +1,4 @@
 .env
 pipedream.code-workspace
 *.pyc
+myproject.egg-info/*

@@ -5,9 +5,6 @@ import random
 from typing import Optional
 from gym_pipedream.grid_elements import *
 
-BOARD_WIDTH = 10
-BOARD_HEIGHT = 7
-
 OBS_LOW = -2
 OBS_HIGH = 10
 
@@ -55,7 +52,7 @@ class PipeDreamEnv(gym.Env):
         self.set_board_position(tap_location, Starting(direction=tap_direction))
 
 
-    def get_valid_tap_direction(self, location):
+    def get_valid_tap_direction(self, location, return_directions=False):
         edges = [0, BOARD_WIDTH-1, BOARD_HEIGHT-1]
         directions = ["up", "right", "down", "left"]
         x,y = location
@@ -67,6 +64,7 @@ class PipeDreamEnv(gym.Env):
             directions.pop(1)
         if y == edges[2]:
             directions.pop(2)
+        if return_directions: return (random.choice(directions), directions)
         return random.choice(directions)
 
     def get_random_location(self, min_width=0, max_width=BOARD_WIDTH-1, min_height=0, max_height=BOARD_HEIGHT-1):

@@ -1,5 +1,8 @@
 
 
+BOARD_WIDTH = 10
+BOARD_HEIGHT = 7
+
 ENCODE_TILE = {
     "none":             0,
     "vertical":         1,
