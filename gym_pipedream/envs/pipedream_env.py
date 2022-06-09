@@ -19,6 +19,7 @@ class PipeDreamEnv(gym.Env):
         self.window_size = 512  # The size of the PyGame window
         #self.board = [[(0, 'none') for i in range(BOARD_WIDTH)] for j in range(BOARD_HEIGHT)]
         self.board = [Floor()] * BOARD_WIDTH * BOARD_HEIGHT
+        self.next_tiles = [None] * TILE_QUEUE_LEN
 
         # observation space consists of grid representing every square
         self.observation_space = spaces.Box(low=OBS_LOW, high=OBS_HIGH, shape=(self.width, self.height), dtype=np.int8)
@@ -44,7 +45,17 @@ class PipeDreamEnv(gym.Env):
 
         # init walls if any
 
-        # init list of next blocks
+        # init list of next tiles
+        self.next_tiles = [random.choice(PLAYING_TILES) for i in range(TILE_QUEUE_LEN)]
+
+    def render(self):
+        raise NotImplementedError
+
+    def step(self):
+        raise NotImplementedError
+
+    def _get_observation(self):
+        raise NotImplementedError
 
     def init_tap(self):
         tap_location = list(self.get_random_location())
@@ -58,12 +69,12 @@ class PipeDreamEnv(gym.Env):
         x,y = location
         if x == 0:
             directions.pop(3)
-        if y == 0:
-            directions.pop(0)
-        if x == edges[1]:
-            directions.pop(1)
         if y == edges[2]:
             directions.pop(2)
+        if x == edges[1]:
+            directions.pop(1)
+        if y == 0:
+            directions.pop(0)
         if return_directions: return (random.choice(directions), directions)
         return random.choice(directions)
 
@@ -86,4 +97,6 @@ if __name__ == "__main__":
     env = PipeDreamEnv()
     state = env.reset()
     env.print_board()
+    print(state)
+
     print(env.observation_space.shape)

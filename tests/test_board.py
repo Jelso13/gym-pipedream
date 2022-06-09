@@ -36,6 +36,19 @@ a, b = gen_tap_data(0, 1, 1, BOARD_HEIGHT-1, ["up", "right", "down"], "Left midd
 tap_data += a
 tap_ids += b
 
+a, b = gen_tap_data(0,1, 0, 1, ["right", "down"], "Top Left Test")
+tap_data += a
+tap_ids += b
+a, b = gen_tap_data(BOARD_WIDTH-1,BOARD_WIDTH, 0, 1, ["down", "left"], "Top right Test")
+tap_data += a
+tap_ids += b
+a, b = gen_tap_data(BOARD_WIDTH-1, BOARD_WIDTH, BOARD_HEIGHT-1, BOARD_HEIGHT, ["up", "left"], "Bottom right test")
+tap_data += a
+tap_ids += b
+a, b = gen_tap_data(0,1, BOARD_HEIGHT-1, BOARD_HEIGHT, ["up", "right"], "Bottom left test")
+tap_data += a
+tap_ids += b
+
 @pytest.mark.parametrize("coords, expected_output", tap_data, ids=tap_ids)
 def test_tap_init(coords, expected_output):
     env = PipeDreamEnv()

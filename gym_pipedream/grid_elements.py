@@ -3,6 +3,18 @@
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
 
+TILE_QUEUE_LEN = 5
+
+PLAYING_TILES = [
+    "vertical",
+    "horizontal",
+    "cross",
+    "leftup",
+    "leftdown",
+    "rightup",
+    "rightdown"
+]
+
 ENCODE_TILE = {
     "none":             0,
     "vertical":         1,
