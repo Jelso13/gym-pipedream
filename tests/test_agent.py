@@ -7,6 +7,7 @@ def test_random_agent(episodes=100):
     env.render()
     for e in range(episodes):
         action = env.action_space.sample()
+        print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
         print(reward)

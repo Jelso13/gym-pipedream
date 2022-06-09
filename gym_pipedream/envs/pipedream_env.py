@@ -10,14 +10,14 @@ OBS_HIGH = 10
 
 class PipeDreamEnv(gym.Env):
     # CHANGE THE METADATA
-    metadata = {"render_modes": ["human", "rgb_array", "ascii"], "render_fps": 4}
+    metadata = {"render_modes": ["human", "rgb_array", "ascii", "descriptive"], "render_fps": 4}
 
     def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT):
         assert render_mode in self.metadata["render_modes"]
 
         self.render_mode = render_mode
 
-        self.board = Board(width, height)
+        self.board = Board(width, height, render_mode)
         self.next_tiles = [None] * TILE_QUEUE_LEN
         self.current_tile = None
 
@@ -93,7 +93,7 @@ class PipeDreamEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = PipeDreamEnv()
+    env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
     env.render()
     #print(state)

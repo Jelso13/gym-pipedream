@@ -103,26 +103,26 @@ class CrossPipe(VerticalPipe, HorizontalPipe):
         super(CrossPipe, self).__init__(type="cross")
 
 class LeftUpPipe(Pipe):
-    def __init__(self):
-        super().__init__("leftup")
+    def __init__(self, type="leftup"):
+        super().__init__(type)
         self.transition["left"] = "up"
         self.transition["up"] = "left"
 
 class LeftDownPipe(Pipe):
-    def __init__(self):
-        super().__init__("leftdown")
+    def __init__(self, type="leftdown"):
+        super().__init__(type)
         self.transition["left"] = "down"
         self.transition["down"] = "left"
 
 class RightUpPipe(Pipe):
-    def __init__(self):
-        super().__init__("rightup")
+    def __init__(self, type="rightup"):
+        super().__init__(type)
         self.transition["right"] = "up"
         self.transition["up"] = "right"
 
 class RightDownPipe(Pipe):
-    def __init__(self):
-        super().__init__("rightdown")
+    def __init__(self, type="rightdown"):
+        super().__init__(type)
         self.transition["right"] = "down"
         self.transition["down"] = "right"
 
@@ -143,10 +143,11 @@ PLAYING_TILES = [
 ]
 
 class Board:
-    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT):
+    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT, print_style="ascii"):
         self.width = width
         self.height = height
         self.tiles = [Floor()] * self.width * self.height
+        self.print_style=print_style
 
     def get_tiles(self):
         return self.tiles
@@ -188,12 +189,30 @@ class Board:
         max_width, max_height = [max_defaults[i] if max_vars[i] == None else max_vars[i] for i in range(2)]
         return (random.randint(min_width, max_width), random.randint(min_height, max_height))
 
-    def __str__(self, print_width=130):
-        return_string = "-"*print_width + "\n"
-        for i in range(self.height):
-            for j in range(self.width):
-                return_string += "| {:^10s} ".format(self.tiles[i*self.width + j].type)
-            return_string += "|\n" + "-"*130 + "\n"
+    def __str__(self):
+        # fix this as currently just sets everything to blue
+        if self.print_style == "ascii":
+            return_string = "-"*130 + "\n"
+            for i in range(self.height):
+                for j in range(self.width):
+                    return_string += "| {:^10s} ".format(ENCODE_ASCII[self.tiles[i*self.width + j].type])
+                return_string += "|\n" + "-"*130 + "\n"
+        elif self.print_style == "descriptive":
+            return_string = "-"*130 + "\n"
+            for i in range(self.height):
+                for j in range(self.width):
+                    return_string += "| {:^10s} ".format(self.tiles[i*self.width + j].type)
+                return_string += "|\n" + "-"*130 + "\n"
+        else:
+            strt = "\033[36m"
+            nd = "\033[0m"
+            return_string = "\n"
+            #return_string = "-"*5 + "\n"
+            for i in range(self.height):
+                for j in range(self.width):
+                    return_string += strt + str(ENCODE_ASCII[self.tiles[i*self.width + j].type]) + nd
+                #return_string += "|\n" + "-"*5 + "\n"
+                return_string += "\n"
 
         #print("-"*130)
         #for i in range(self.height):
