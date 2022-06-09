@@ -68,7 +68,10 @@ class Tile:
         self.state = state
 
     def get_encoding(self):
-        return (ENCODE_TILE[self.type], self.state)
+        if isinstance(self.state, str):
+            return (ENCODE_TILE[self.type], ENCODE_STATE[self.state])
+        else:
+            return (ENCODE_TILE[self.type], self.state)
 
 class Wall(Tile):
     def __init__(self):
