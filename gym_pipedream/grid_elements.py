@@ -1,4 +1,5 @@
 import random
+from re import A
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
@@ -173,6 +174,12 @@ class Board:
         self.tiles = [Floor()] * self.width * self.height
         self.init_tap()
 
+    def init_tap(self):
+        tap_location = list(self.get_random_location())
+        tap_direction = self.get_valid_tap_direction(tap_location)
+        self.set_tile(tap_location, StartingPipe(direction=tap_direction))
+        self.current_water_position = self._coords_to_index(tap_location)
+
     def calc_next_state(self):
         """
         Increase the ratio of pipe filled given flow_rate
@@ -187,26 +194,31 @@ class Board:
         self.tiles[self.current_water_position].state -= 1
         if self.tiles[self.current_water_position].state == 0:
             self.current_water_position = self._get_next_water_position()
+
+        raise NotImplementedError
             
-        raise NotImplementedError
-
-    def init_tap(self):
-        tap_location = list(self.get_random_location())
-        tap_direction = self.get_valid_tap_direction(tap_location)
-        self.set_tile(tap_location, StartingPipe(direction=tap_direction))
-        self.current_water_position = self._coords_to_index(tap_location)
 
 
-    def _get_next_water_position(self):
+    def _get_next_water_position(self, water_direction=None):
         #potential_next_position = self.tiles[self.current_water_position].transition
-        water_direction = self.tiles[self.current_water_position].transition
+        #water_direction = self.tiles[self.current_water_position].transition
+
         next_position_index = -1
-        #if water_direction == "up":
-            #next_position_index = 
+        if water_direction == "up":
+            next_position_index = self.current_water_position - self.width
+        elif water_direction == "right":
+            if (self.current_water_position + 1) % self.width != 0:
+                next_position_index = self.current_water_position + 1
+        elif water_direction == "down":
+            next_position_index = self.current_water_position + self.width
+        elif water_direction == "left":
+            if self.current_water_position % self.width != 0:
+                next_position_index = self.current_water_position - 1
 
+        if next_position_index > len(self.tiles)-1:
+            next_position_index = -1
 
-
-        raise NotImplementedError
+        return next_position_index
 
 
     def get_valid_tap_direction(self, location, return_directions=False):

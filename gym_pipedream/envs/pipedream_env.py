@@ -77,7 +77,9 @@ class PipeDreamEnv(gym.Env):
             done = True
         
 
-        next_state, reward, done = self.board.calc_next_state()
+        #next_state, reward, done = self.board.calc_next_state()
+        self.board._get_next_water_position()
+        self.board.calc_next_state()
 
         # determine the info here
 
@@ -103,9 +105,26 @@ class PipeDreamEnv(gym.Env):
 if __name__ == "__main__":
     env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
-    print(env.board.set_tile([3,3], VerticalPipe()))
+    print(env.board.set_tile([4,0], VerticalPipe()))
+    print(env.board.set_tile([9,4], VerticalPipe()))
+    print(env.board.set_tile([4,6], VerticalPipe()))
+    print(env.board.set_tile([0,4], VerticalPipe()))
     print("state = ", state)
     env.render()
+
+    ####### testing the get_next_water_position function
+
+    #test_positions = [[0,0], [0,4], [9,0], [9, 4], [9,9], [4,9], [0,9], [0,4]]
+    #test_positions = [[4,0], [9, 4], [4,6], [0,4]]
+    test_positions = [[0,0], [9, 0], [9,6], [0,6]]
+    directions = ["up", "right", "down", "left"]
+    for i in range(4):
+        env.board.current_water_position = env.board._coords_to_index(test_positions[i])
+        print(env.board._get_next_water_position(directions[i]))
+
+    ####### testing the get_next_water_position function
+
+    #env.render()
     action = env.action_space.sample()
     print("action = ", action)
     state, reward, done, info = env.step(action)
