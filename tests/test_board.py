@@ -52,7 +52,7 @@ tap_ids += b
 @pytest.mark.parametrize("coords, expected_output", tap_data, ids=tap_ids)
 def test_tap_init(coords, expected_output):
     env = PipeDreamEnv()
-    output = env.get_valid_tap_direction(coords, True)[1]
+    output = env.board.get_valid_tap_direction(coords, True)[1]
     assert output == expected_output
 
 

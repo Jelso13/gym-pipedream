@@ -2,6 +2,7 @@ import random
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
+PIPE_CAPACITY = 4
 
 TILE_QUEUE_LEN = 5
 
@@ -42,13 +43,6 @@ ENCODE_STATE = {
     "empty":            0,
     "full":             1,
     "none":             -1
-}
-
-ENCODE_DIRECTIONS = {
-    "up":               0,
-    "right":            1,
-    "down":             2,
-    "left":             3
 }
 
 # Base class for all tilesl
@@ -130,7 +124,6 @@ class StartingPipe(Pipe):
     def __init__(self, direction="down"):
         super().__init__("start"+direction)
         self.transition = direction
-        self.state = 0.0001 # slight offset from 0 so it isnt empty
 
 PLAYING_TILES = [
     VerticalPipe,
@@ -143,28 +136,77 @@ PLAYING_TILES = [
 ]
 
 class Board:
-    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT, print_style="ascii"):
+    """
+    Board Class
+
+    Handles the interactions with the board.
+
+    Attributes:
+        width:          the width of the board
+        height:         the height of the board
+        print_style:    the style with which the board is rendered
+        pipe_capacity:  the rate the water flows such that each step
+                        the capacity remaining is decremented by 1.
+                            pipe_capacity=4 means a new tile is filled
+                            every 4 steps.
+    """
+
+    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, print_style="ascii"):
         self.width = width
         self.height = height
         self.tiles = [Floor()] * self.width * self.height
         self.print_style=print_style
+        self.current_water_position = None
+        self.pipe_capacity = pipe_capacity
 
     def get_tiles(self):
         return self.tiles
 
     def set_tile(self, location, object):
-        self.tiles[location[1]*self.width + location[0]] = object
+        if (location[0] < 0 or location[0] > self.width) and \
+            (location[1] < 0 or location[1] > self.height):
+            return False
+        self.tiles[self._coords_to_index(location)] = object
+        return True
 
     def reset_board(self):
         self.tiles = [Floor()] * self.width * self.height
+        self.init_tap()
 
-    def _calc_next_state(self):
+    def calc_next_state(self):
+        """
+        Increase the ratio of pipe filled given flow_rate
+        if pipe state == 1 (the pipe is filled):
+            calculate the next pipe to start
+            if the next pipe does not exist:
+                return failed.
+            else:
+                set state to 0.01 or some other value so its started to be filled
+                and cannot be changed
+        """
+        self.tiles[self.current_water_position].state -= 1
+        if self.tiles[self.current_water_position].state == 0:
+            self.current_water_position = self._get_next_water_position()
+            
         raise NotImplementedError
 
     def init_tap(self):
         tap_location = list(self.get_random_location())
         tap_direction = self.get_valid_tap_direction(tap_location)
         self.set_tile(tap_location, StartingPipe(direction=tap_direction))
+        self.current_water_position = self._coords_to_index(tap_location)
+
+
+    def _get_next_water_position(self):
+        #potential_next_position = self.tiles[self.current_water_position].transition
+        water_direction = self.tiles[self.current_water_position].transition
+        next_position_index = -1
+        #if water_direction == "up":
+            #next_position_index = 
+
+
+
+        raise NotImplementedError
 
 
     def get_valid_tap_direction(self, location, return_directions=False):
@@ -188,6 +230,9 @@ class Board:
         max_vars = [max_width, max_height]
         max_width, max_height = [max_defaults[i] if max_vars[i] == None else max_vars[i] for i in range(2)]
         return (random.randint(min_width, max_width), random.randint(min_height, max_height))
+
+    def _coords_to_index(self, coords):
+        return coords[1] * self.width + coords[0]
 
     def __str__(self):
         # fix this as currently just sets everything to blue

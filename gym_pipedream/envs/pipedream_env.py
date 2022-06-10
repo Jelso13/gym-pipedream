@@ -12,12 +12,12 @@ class PipeDreamEnv(gym.Env):
     # CHANGE THE METADATA
     metadata = {"render_modes": ["human", "rgb_array", "ascii", "descriptive"], "render_fps": 4}
 
-    def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT):
+    def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY):
         assert render_mode in self.metadata["render_modes"]
 
         self.render_mode = render_mode
 
-        self.board = Board(width, height, render_mode)
+        self.board = Board(width, height, pipe_capacity, render_mode)
         self.next_tiles = [None] * TILE_QUEUE_LEN
         self.current_tile = None
 
@@ -44,9 +44,6 @@ class PipeDreamEnv(gym.Env):
         # Reset the board
         self.board.reset_board()
 
-        # init tap location
-        self.board.init_tap()
-
         # init walls if any
 
         # init list of next tiles
@@ -64,7 +61,6 @@ class PipeDreamEnv(gym.Env):
 
         actions are enumerated from 0 to board_width * board_height - 1 corresponding to grid positions
         """
-        assert action >= 0 and action <= self.width * self.height -1 
 
         """
         if possible action:
@@ -75,6 +71,15 @@ class PipeDreamEnv(gym.Env):
             return all
         """
 
+        # set the action if possible 
+        done = False
+        if self.board.set_tile(action, self.current_tile):
+            done = True
+        
+
+        next_state, reward, done = self.board.calc_next_state()
+
+        # determine the info here
 
         raise NotImplementedError
 
@@ -87,6 +92,9 @@ class PipeDreamEnv(gym.Env):
     def _get_observation(self):
         return {"board":[tile.get_encoding() for tile in self.board.get_tiles()], "current_tile": self.current_tile.get_encoding()}
 
+    def _get_info(self):
+        return {"next_tile_queue": [tile.get_encoding() for tile in self.next_tiles]}
+
 
     def set_board_position(self, loc, obj):
         self.board[loc[1]*self.width + loc[0]] = obj
@@ -95,6 +103,12 @@ class PipeDreamEnv(gym.Env):
 if __name__ == "__main__":
     env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
+    print(env.board.set_tile([3,3], VerticalPipe()))
+    print("state = ", state)
+    env.render()
+    action = env.action_space.sample()
+    print("action = ", action)
+    state, reward, done, info = env.step(action)
     env.render()
     #print(state)
     #print(env.observation_space.shape)
