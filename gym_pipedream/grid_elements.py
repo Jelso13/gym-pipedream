@@ -1,11 +1,15 @@
 import random
-from re import A
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
 PIPE_CAPACITY = 4
 
 TILE_QUEUE_LEN = 5
+
+REWARDS = {
+    "spill": -10,
+    "new_pipe": 1
+}
 
 
 ENCODE_TILE = {
@@ -164,8 +168,8 @@ class Board:
         return self.tiles
 
     def set_tile(self, location, object):
-        if (location[0] < 0 or location[0] > self.width) and \
-            (location[1] < 0 or location[1] > self.height):
+        if location[0] < 0 or location[0] > self.width or \
+            location[1] < 0 or location[1] > self.height:
             return False
         self.tiles[self._coords_to_index(location)] = object
         return True
@@ -191,9 +195,22 @@ class Board:
                 set state to 0.01 or some other value so its started to be filled
                 and cannot be changed
         """
+        done = False
+
         self.tiles[self.current_water_position].state -= 1
+        # if the current water position is full move to next one
         if self.tiles[self.current_water_position].state == 0:
             self.current_water_position = self._get_next_water_position()
+
+            # if the new water position is impossible then water leaking
+            if self.current_water_position < 0:
+                done = True
+            else: # the new pipe is correct - indicate it is being filled by reducing by -1
+                self.tiles[self.current_water_position].state -= 1
+
+        
+
+
 
         raise NotImplementedError
             

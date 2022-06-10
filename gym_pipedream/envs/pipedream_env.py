@@ -12,7 +12,7 @@ class PipeDreamEnv(gym.Env):
     # CHANGE THE METADATA
     metadata = {"render_modes": ["human", "rgb_array", "ascii", "descriptive"], "render_fps": 4}
 
-    def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY):
+    def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, rewards=REWARDS):
         assert render_mode in self.metadata["render_modes"]
 
         self.render_mode = render_mode
@@ -25,6 +25,7 @@ class PipeDreamEnv(gym.Env):
         self.observation_space = spaces.Box(low=OBS_LOW, high=OBS_HIGH, shape=(width, height), dtype=np.int8)
         # one action for each position on the grid
         self.action_space = spaces.MultiDiscrete([width, height])
+        self.rewards = rewards
         
         self.window_size = 512  # The size of the PyGame window
 
@@ -71,7 +72,8 @@ class PipeDreamEnv(gym.Env):
             return all
         """
 
-        # set the action if possible 
+        # set the action if possible  
+        """ MAKE SURE THAT THE ACTION IS POSSIBLE"""
         done = False
         if self.board.set_tile(action, self.current_tile):
             done = True
@@ -83,6 +85,7 @@ class PipeDreamEnv(gym.Env):
 
         # determine the info here
 
+        # return state, reward, done, info
         raise NotImplementedError
 
     def render(self):
@@ -105,24 +108,7 @@ class PipeDreamEnv(gym.Env):
 if __name__ == "__main__":
     env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
-    print(env.board.set_tile([4,0], VerticalPipe()))
-    print(env.board.set_tile([9,4], VerticalPipe()))
-    print(env.board.set_tile([4,6], VerticalPipe()))
-    print(env.board.set_tile([0,4], VerticalPipe()))
-    print("state = ", state)
     env.render()
-
-    ####### testing the get_next_water_position function
-
-    #test_positions = [[0,0], [0,4], [9,0], [9, 4], [9,9], [4,9], [0,9], [0,4]]
-    #test_positions = [[4,0], [9, 4], [4,6], [0,4]]
-    test_positions = [[0,0], [9, 0], [9,6], [0,6]]
-    directions = ["up", "right", "down", "left"]
-    for i in range(4):
-        env.board.current_water_position = env.board._coords_to_index(test_positions[i])
-        print(env.board._get_next_water_position(directions[i]))
-
-    ####### testing the get_next_water_position function
 
     #env.render()
     action = env.action_space.sample()
