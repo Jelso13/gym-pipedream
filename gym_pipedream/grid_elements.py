@@ -56,12 +56,14 @@ class Tile:
     def __init__(self, type, state):
         self.type = type
         self.state = state
+        self.can_receive_water = False
 
     def get_encoding(self):
         if isinstance(self.state, str):
             return (ENCODE_TILE[self.type], ENCODE_STATE[self.state])
         else:
             return (ENCODE_TILE[self.type], self.state)
+
 
 class Wall(Tile):
     def __init__(self):
@@ -78,10 +80,11 @@ class Floor(Tile):
 
 class Pipe(Tile):
     def __init__(self, type):
-        self.state = 0
+        self.state = PIPE_CAPACITY
         super().__init__(type, self.state)
         self.type = type
         self.transition = {}
+        self.can_receive_water = True
 
 class VerticalPipe(Pipe):
     def __init__(self, type="vertical"):
@@ -128,7 +131,7 @@ class RightDownPipe(Pipe):
 class StartingPipe(Pipe):
     def __init__(self, direction="down"):
         super().__init__("start"+direction)
-        self.transition = direction
+        self.transition[direction] = direction
 
 PLAYING_TILES = [
     VerticalPipe,
@@ -200,40 +203,48 @@ class Board:
         self.tiles[self.current_water_position].state -= 1
         # if the current water position is full move to next one
         if self.tiles[self.current_water_position].state == 0:
-            self.current_water_position = self._get_next_water_position()
+            next_water_position = self._get_next_water_position()
 
-            # if the new water position is impossible then water leaking
-            if self.current_water_position < 0:
+            # if the new water position is impossible or already full then water leaking
+            if self.current_water_position < 0 or not self.tiles[next_water_position].can_receive_water():
                 done = True
             else: # the new pipe is correct - indicate it is being filled by reducing by -1
                 self.tiles[self.current_water_position].state -= 1
 
         
-
-
-
         raise NotImplementedError
             
 
 
     def _get_next_water_position(self, water_direction=None):
-        #potential_next_position = self.tiles[self.current_water_position].transition
-        #water_direction = self.tiles[self.current_water_position].transition
+        """
+        Gets the valid index in the tiles array of the next pipe to fill with water.
+        If an empty pipe is not in the next section of the water flow then the episode is over.
+        """
 
+        dir_to_index = {
+            "up": -self.width,
+            "right": 1,
+            "down": self.width,
+            "left": -1
+        }
+
+        # determine if the next position is on the board
         next_position_index = -1
-        if water_direction == "up":
-            next_position_index = self.current_water_position - self.width
-        elif water_direction == "right":
-            if (self.current_water_position + 1) % self.width != 0:
-                next_position_index = self.current_water_position + 1
-        elif water_direction == "down":
-            next_position_index = self.current_water_position + self.width
-        elif water_direction == "left":
-            if self.current_water_position % self.width != 0:
-                next_position_index = self.current_water_position - 1
+        if water_direction == "up" or water_direction == "down" or \
+            (water_direction == "right" and (self.current_water_position + 1) % self.width != 0) or \
+            (water_direction == "left" and self.current_water_position % self.width != 0):
+            next_position_index = self.current_water_position + dir_to_index[water_direction]
 
         if next_position_index > len(self.tiles)-1:
-            next_position_index = -1
+            return -1
+
+        switch_dir_perspective = {"up":"down", "down":"up", "left":"right", "right":"left"}
+        next_pipe = self.tiles[next_position_index]
+        # if the next position is not an empty pipe or does not have entrance in correct direction
+        if next_pipe.state != self.pipe_capacity or \
+            switch_dir_perspective[water_direction] not in next_pipe.transition.keys():
+            return -1
 
         return next_position_index
 
