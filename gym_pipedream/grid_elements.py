@@ -84,6 +84,7 @@ class Pipe(Tile):
         self.type = type
         self.transition = {}
         self.can_receive_water = True
+        self.water_entrance = "none"
 
 class VerticalPipe(Pipe):
     def __init__(self, type="vertical"):
@@ -131,6 +132,7 @@ class StartingPipe(Pipe):
     def __init__(self, direction="down"):
         super().__init__("start"+direction)
         self.transition[direction] = direction
+        self.water_entrance = direction
 
 PLAYING_TILES = [
     VerticalPipe,
@@ -212,7 +214,7 @@ class Board:
         self.tiles[self.current_water_position].state -= 1
         # if the current water position is full move to next one
         if self.tiles[self.current_water_position].state == 0:
-            next_water_position = self._get_next_water_position()
+            next_water_position, water_entrance = self._get_next_water_position()
 
             # if the new water position is impossible or already full then water leaking
             if next_water_position < 0:
@@ -220,6 +222,7 @@ class Board:
             else: # the new pipe is correct - indicate it is being filled by reducing by -1
                 self.current_water_position = next_water_position
                 self.tiles[self.current_water_position].state -= 1
+                self.tiles[self.current_water_position].water_entrance = water_entrance
                 pipe_filled = True
 
         return pipe_filled, done
@@ -237,25 +240,33 @@ class Board:
             "down": self.width,
             "left": -1
         }
+        switch_dir_perspective = {"up":"down", "down":"up", "left":"right", "right":"left"}
+
+        # the water_entrance attribute provides the key to the transitions - set it when next water location hit.
+        current_pipe = self.tiles[self.current_water_position]
+        water_direction = current_pipe.transition[current_pipe.water_entrance]
 
         # determine if the next position is on the board
         next_position_index = -1
+        print("water_direction = ", water_direction)
         if water_direction == "up" or water_direction == "down" or \
             (water_direction == "right" and (self.current_water_position + 1) % self.width != 0) or \
             (water_direction == "left" and self.current_water_position % self.width != 0):
             next_position_index = self.current_water_position + dir_to_index[water_direction]
+            print("HIT")
+
+        print("next_position_index = ", next_position_index)
 
         if next_position_index > len(self.tiles)-1 or not self.tiles[next_position_index].can_receive_water:
-            return -1
+            return -1, switch_dir_perspective[water_direction]
 
-        switch_dir_perspective = {"up":"down", "down":"up", "left":"right", "right":"left"}
         next_pipe = self.tiles[next_position_index]
         # if the next position is not an empty pipe or does not have entrance in correct direction
         if next_pipe.state != self.pipe_capacity or \
             switch_dir_perspective[water_direction] not in next_pipe.transition.keys():
-            return -1
+            return -1, switch_dir_perspective[water_direction]
 
-        return next_position_index
+        return next_position_index, switch_dir_perspective[water_direction]
 
 
     def get_valid_tap_direction(self, location, return_directions=False):
@@ -286,11 +297,25 @@ class Board:
     def __str__(self):
         # fix this as currently just sets everything to blue
         if self.print_style == "ascii":
+            strt = "\033[36m"
+            white = ""
+            nd = "\033[0m"
             return_string = "-"*130 + "\n"
             for i in range(self.height):
                 for j in range(self.width):
-                    return_string += "| {:^10s} ".format(ENCODE_ASCII[self.tiles[i*self.width + j].type])
+                    current_tile = self.tiles[i*self.width +j]
+                    chr_val = ENCODE_ASCII[current_tile.type]
+                    # if the pipe is currently being filled the show value
+                    if current_tile.state < self.pipe_capacity and current_tile.state >0:
+                        chr_val += str(current_tile.state)
+                        print("chr_val = ", chr_val)
+                    # if full of water:
+                    if self.tiles[i*self.width + j].state <= 0:
+                        return_string += "| " + strt + "{:^10s} ".format(chr_val) + nd
+                    else:
+                        return_string += "| {:^10s} ".format(chr_val)
                 return_string += "|\n" + "-"*130 + "\n"
+
         elif self.print_style == "descriptive":
             return_string = "-"*130 + "\n"
             for i in range(self.height):
@@ -308,11 +333,5 @@ class Board:
                 #return_string += "|\n" + "-"*5 + "\n"
                 return_string += "\n"
 
-        #print("-"*130)
-        #for i in range(self.height):
-        #    for j in range(self.width):
-        #        #print("| {:^10s} ".format(self.board[i*self.width + j].type), end="")
-        #        print("| {:^10s} ".format(ENCODE_ASCII[self.tiles[i*self.width + j].type]), end="")
-        #    print("|\n" + "-"*130)
         return return_string
     

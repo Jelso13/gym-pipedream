@@ -10,6 +10,7 @@ OBS_HIGH = 10
 
 class PipeDreamEnv(gym.Env):
     # CHANGE THE METADATA
+    # human = pygame, rgb_array = curses, ascii = text descriptive = verbose.
     metadata = {"render_modes": ["human", "rgb_array", "ascii", "descriptive"], "render_fps": 4}
 
     def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, rewards=REWARDS):
@@ -49,7 +50,7 @@ class PipeDreamEnv(gym.Env):
 
         # init list of next tiles
         self.next_tiles = [random.choice(PLAYING_TILES)() for i in range(TILE_QUEUE_LEN)]
-        self.current_tile = self.next_tiles[-1]
+        self.current_tile = self.next_tiles[0]
 
         return self._get_observation()
 
@@ -73,10 +74,10 @@ class PipeDreamEnv(gym.Env):
         """
 
         # set the action if possible  
-        """ MAKE SURE THAT THE ACTION IS POSSIBLE"""
-        done = False
         if self.board.set_tile(action, self.current_tile):
-            done = True
+            self.next_tiles.pop(0)
+            self.next_tiles.append(random.choice(PLAYING_TILES)())
+            self.current_tile = self.next_tiles[0]
         
 
         pipe_filled, done = self.board.calc_next_state()
@@ -88,10 +89,13 @@ class PipeDreamEnv(gym.Env):
         return next_state, reward, done, info
 
     def render(self):
-        if self.render_mode == "ascii":
-            print(self.board)
-        else:
+        if self.render_mode == "human":
             raise NotImplementedError
+        elif self.render_mode == "rgb_array":
+            raise NotImplementedError
+        else:
+            print(self.board)
+            print("")
 
     def _get_observation(self):
         return {"board":[tile.get_encoding() for tile in self.board.get_tiles()], "current_tile": self.current_tile.get_encoding()}
@@ -111,14 +115,32 @@ class PipeDreamEnv(gym.Env):
 
 
 if __name__ == "__main__":
+    random.seed(1)
     env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
     env.render()
 
     #env.render()
-    action = env.action_space.sample()
-    print("action = ", action)
-    state, reward, done, info = env.step(action)
-    env.render()
+    for i in range(100):
+        action = env.action_space.sample()
+        if i == 0:
+            action = [2,3]
+        if i == 1:
+            action = [2,2]
+        if i == 2:
+            action = [3,1]
+        if i == 3:
+            action = [2,1]
+        
+        print("action = ", action)
+        print("next tiles = ", [t.type for t in env.next_tiles])
+        print("start state = ", env.board.tiles[42].state)
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+
+    print("start state = ", env.board.tiles[42].state)
     #print(state)
     #print(env.observation_space.shape)
