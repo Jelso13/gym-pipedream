@@ -103,6 +103,7 @@ class HorizontalPipe(Pipe):
 class CrossPipe(VerticalPipe, HorizontalPipe):
     def __init__(self):
         super(CrossPipe, self).__init__(type="cross")
+        self.state2 = PIPE_CAPACITY
 
 class LeftUpPipe(Pipe):
     def __init__(self, type="leftup"):
@@ -264,7 +265,13 @@ class Board:
         # if the next position is not an empty pipe or does not have entrance in correct direction
         if next_pipe.state != self.pipe_capacity or \
             switch_dir_perspective[water_direction] not in next_pipe.transition.keys():
-            return -1, switch_dir_perspective[water_direction]
+            if next_pipe.type == "cross":
+                # make state2 be full to utilise .state
+                next_pipe.state2 = next_pipe.state
+                next_pipe.state = self.pipe_capacity
+            else:
+                # make sure it isnt a cross pipe
+                return -1, switch_dir_perspective[water_direction]
 
         return next_position_index, switch_dir_perspective[water_direction]
 
@@ -308,7 +315,6 @@ class Board:
                     # if the pipe is currently being filled the show value
                     if current_tile.state < self.pipe_capacity and current_tile.state >0:
                         chr_val += str(current_tile.state)
-                        print("chr_val = ", chr_val)
                     # if full of water:
                     if self.tiles[i*self.width + j].state <= 0:
                         return_string += "| " + strt + "{:^10s} ".format(chr_val) + nd

@@ -115,22 +115,29 @@ class PipeDreamEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    random.seed(1)
+    random.seed(0)
     env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
     env.render()
+
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.current_tile = env.next_tiles[0]
 
     #env.render()
     for i in range(100):
         action = env.action_space.sample()
         if i == 0:
-            action = [2,3]
+            action = [7,6]
         if i == 1:
-            action = [2,2]
+            action = [7,5]
         if i == 2:
-            action = [3,1]
+            action = [7,4]
         if i == 3:
-            action = [2,1]
+            action = [8,4]
+        if i == 4:
+            action = [8,5]
+        if i == 5:
+            action = [6,5]
         
         print("action = ", action)
         print("next tiles = ", [t.type for t in env.next_tiles])
