@@ -79,14 +79,13 @@ class PipeDreamEnv(gym.Env):
             done = True
         
 
-        #next_state, reward, done = self.board.calc_next_state()
-        self.board._get_next_water_position()
-        self.board.calc_next_state()
+        pipe_filled, done = self.board.calc_next_state()
+        #self.board.calc_next_state()
+        next_state = self._get_observation()
+        reward = self._get_reward(pipe_filled)
+        info = self._get_info()
 
-        # determine the info here
-
-        # return state, reward, done, info
-        raise NotImplementedError
+        return next_state, reward, done, info
 
     def render(self):
         if self.render_mode == "ascii":
@@ -99,6 +98,12 @@ class PipeDreamEnv(gym.Env):
 
     def _get_info(self):
         return {"next_tile_queue": [tile.get_encoding() for tile in self.next_tiles]}
+    
+    def _get_reward(self, pipe_filled=False):
+        if pipe_filled:
+            return 1
+        
+        return 0
 
 
     def set_board_position(self, loc, obj):

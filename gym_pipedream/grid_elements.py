@@ -13,7 +13,7 @@ REWARDS = {
 
 
 ENCODE_TILE = {
-    "none":             0,
+    "floor":             0,
     "vertical":         1,
     "horizontal":       2,
     "cross":            3,
@@ -29,7 +29,7 @@ ENCODE_TILE = {
 }
 
 ENCODE_ASCII = {
-    "none":             "",
+    "floor":             "",
     "vertical":         "║",
     "horizontal":       "═",
     "cross":            "╬",
@@ -64,17 +64,16 @@ class Tile:
         else:
             return (ENCODE_TILE[self.type], self.state)
 
-
 class Wall(Tile):
     def __init__(self):
         self.type = "wall"
-        self.state = "none"
+        self.state = -1
         super().__init__(self.type, self.state)
 
 class Floor(Tile):
     def __init__(self):
-        self.type = "none"
-        self.state = "none"
+        self.type = "floor"
+        self.state = -1
         super().__init__(self.type, self.state)
 
 
@@ -171,11 +170,20 @@ class Board:
         return self.tiles
 
     def set_tile(self, location, object):
-        if location[0] < 0 or location[0] > self.width or \
-            location[1] < 0 or location[1] > self.height:
-            return False
-        self.tiles[self._coords_to_index(location)] = object
-        return True
+        # can only set tile if in grid, the floor or pipe with full capacity.
+        previous_tile = self.tiles[self._coords_to_index(location)]
+
+        in_grid = not (location[0] < 0 or location[0] > self.width or \
+            location[1] < 0 or location[1] > self.height)
+
+        is_floor = previous_tile.type == "floor"
+
+        is_available_pipe = previous_tile.can_receive_water and previous_tile.state == self.pipe_capacity
+
+        if in_grid and (is_floor or is_available_pipe):
+            self.tiles[self._coords_to_index(location)] = object
+            return True
+        return False
 
     def reset_board(self):
         self.tiles = [Floor()] * self.width * self.height
@@ -195,10 +203,11 @@ class Board:
             if the next pipe does not exist:
                 return failed.
             else:
-                set state to 0.01 or some other value so its started to be filled
+                set state to capacity - 1 or some other value so its started to be filled
                 and cannot be changed
         """
         done = False
+        pipe_filled = False
 
         self.tiles[self.current_water_position].state -= 1
         # if the current water position is full move to next one
@@ -206,14 +215,14 @@ class Board:
             next_water_position = self._get_next_water_position()
 
             # if the new water position is impossible or already full then water leaking
-            if self.current_water_position < 0 or not self.tiles[next_water_position].can_receive_water():
+            if next_water_position < 0:
                 done = True
             else: # the new pipe is correct - indicate it is being filled by reducing by -1
+                self.current_water_position = next_water_position
                 self.tiles[self.current_water_position].state -= 1
+                pipe_filled = True
 
-        
-        raise NotImplementedError
-            
+        return pipe_filled, done
 
 
     def _get_next_water_position(self, water_direction=None):
@@ -236,7 +245,7 @@ class Board:
             (water_direction == "left" and self.current_water_position % self.width != 0):
             next_position_index = self.current_water_position + dir_to_index[water_direction]
 
-        if next_position_index > len(self.tiles)-1:
+        if next_position_index > len(self.tiles)-1 or not self.tiles[next_position_index].can_receive_water:
             return -1
 
         switch_dir_perspective = {"up":"down", "down":"up", "left":"right", "right":"left"}
