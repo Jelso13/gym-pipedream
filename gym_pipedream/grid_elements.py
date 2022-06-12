@@ -78,8 +78,8 @@ class Floor(Tile):
 
 
 class Pipe(Tile):
-    def __init__(self, type):
-        self.state = PIPE_CAPACITY
+    def __init__(self, type, state=PIPE_CAPACITY):
+        self.state = state
         super().__init__(type, self.state)
         self.type = type
         self.transition = {}
@@ -87,51 +87,49 @@ class Pipe(Tile):
         self.water_entrance = "none"
 
 class VerticalPipe(Pipe):
-    def __init__(self, type="vertical"):
-        #super().__init__("vertical")
-        super().__init__(type)
+    def __init__(self, type="vertical", *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
         self.transition["up"] = "down"
         self.transition["down"] = "up"
 
 class HorizontalPipe(Pipe):
-    def __init__(self, type = "horizontal"):
-        #super().__init__("horizontal")
-        super().__init__(type)
+    def __init__(self, type = "horizontal", *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
         self.transition["left"] = "right"
         self.transition["right"] = "left"
     
 class CrossPipe(VerticalPipe, HorizontalPipe):
-    def __init__(self):
-        super(CrossPipe, self).__init__(type="cross")
+    def __init__(self, *args, **kwargs):
+        super(CrossPipe, self).__init__(type="cross", *args, **kwargs)
         self.state2 = PIPE_CAPACITY
 
 class LeftUpPipe(Pipe):
-    def __init__(self, type="leftup"):
-        super().__init__(type)
+    def __init__(self, type="leftup", *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
         self.transition["left"] = "up"
         self.transition["up"] = "left"
 
 class LeftDownPipe(Pipe):
-    def __init__(self, type="leftdown"):
-        super().__init__(type)
+    def __init__(self, type="leftdown", *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
         self.transition["left"] = "down"
         self.transition["down"] = "left"
 
 class RightUpPipe(Pipe):
-    def __init__(self, type="rightup"):
-        super().__init__(type)
+    def __init__(self, type="rightup", *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
         self.transition["right"] = "up"
         self.transition["up"] = "right"
 
 class RightDownPipe(Pipe):
-    def __init__(self, type="rightdown"):
-        super().__init__(type)
+    def __init__(self, type="rightdown", *args, **kwargs):
+        super().__init__(type, *args, **kwargs)
         self.transition["right"] = "down"
         self.transition["down"] = "right"
 
 class StartingPipe(Pipe):
-    def __init__(self, direction="down"):
-        super().__init__("start"+direction)
+    def __init__(self, direction="down", *args, **kwargs):
+        super().__init__("start"+direction, *args, **kwargs)
         self.transition[direction] = direction
         self.water_entrance = direction
 

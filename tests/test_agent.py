@@ -166,7 +166,57 @@ def test_partially_filled_pipes_nonreplaceable():
         assert env.board.tiles[33].type == "leftup"
 
 
+def test_longer_fill_time():
+    random.seed(0)
+    pipe_capacity = 8
+    env = PipeDreamEnv(render_mode="ascii", pipe_capacity=pipe_capacity)
+    state = env.reset()
+    env.render()
+
+    env.next_tiles = [LeftUpPipe(state=pipe_capacity), CrossPipe(state=pipe_capacity), RightDownPipe(state=pipe_capacity), LeftDownPipe(state=pipe_capacity), LeftUpPipe(state=pipe_capacity), HorizontalPipe(state=pipe_capacity)]
+    env.current_tile = env.next_tiles[0]
+
+    w,h = [env.board.width, env.board.height]
+
+    #env.render()
+    for i in range(100):
+        if i == 0:
+            action = [7,6]
+        elif i == 1:
+            action = [7,5]
+        elif i == 2:
+            action = [7,4]
+        elif i == 3:
+            # if action ==3 then if the pipe is flowing at the slower rate then
+            # [7, 5] should have a state of 7
+            assert env.board.tiles[5*10+7].state == pipe_capacity
+            action = [8,4]
+            random.seed(0)
+        elif i == 4:
+            action = [8,5]
+        elif i == 5:
+            action = [6,5]
+        else:
+            #action = env.action_space.sample()
+            action = [random.randint(0,w-1), random.randint(0,h-1)]
+        
+        print("action = ", action)
+        print("next tiles = ", [t.type for t in env.next_tiles])
+        print("start state = ", env.board.tiles[42].state)
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+
+    final_pipe =  env.board.tiles[5*10 + 6]
+    cross_pipe =  env.board.tiles[5*10 + 7]
+
 if __name__=="__main__":
     test_random_agent()
     test_cross_pipe_water()
     test_water_pipe_nonreplaceable()
+    test_tap_nonreplaceable()
+    test_replaceable_empty_pipe()
+    test_partially_filled_pipes_nonreplaceable()
+    test_longer_fill_time()

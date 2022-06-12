@@ -19,6 +19,7 @@ class PipeDreamEnv(gym.Env):
         self.render_mode = render_mode
 
         self.board = Board(width, height, pipe_capacity, render_mode)
+        self.pipe_capacity = pipe_capacity
         self.next_tiles = [None] * TILE_QUEUE_LEN
         self.current_tile = None
 
@@ -49,7 +50,7 @@ class PipeDreamEnv(gym.Env):
         # init walls if any
 
         # init list of next tiles
-        self.next_tiles = [random.choice(PLAYING_TILES)() for i in range(TILE_QUEUE_LEN)]
+        self.next_tiles = [random.choice(PLAYING_TILES)(state=self.pipe_capacity) for i in range(TILE_QUEUE_LEN)]
         self.current_tile = self.next_tiles[0]
 
         return self._get_observation()
@@ -76,7 +77,7 @@ class PipeDreamEnv(gym.Env):
         # set the action if possible  
         if self.board.set_tile(action, self.current_tile):
             self.next_tiles.pop(0)
-            self.next_tiles.append(random.choice(PLAYING_TILES)())
+            self.next_tiles.append(random.choice(PLAYING_TILES)(state=self.pipe_capacity))
             self.current_tile = self.next_tiles[0]
         
 
