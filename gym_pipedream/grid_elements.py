@@ -280,6 +280,8 @@ class Board:
         edges = [0, self.width-1, self.height-1]
         directions = ["up", "right", "down", "left"]
         x,y = location
+        if x not in range(0, self.width) or y not in range(0,self.height):
+            return [[],[]]
         if x == 0:
             directions.pop(3)
         if y == edges[2]:

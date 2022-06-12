@@ -16,3 +16,4 @@ def test_random_agent(episodes=100):
 
 if __name__=="__main__":
     test_random_agent()
+    test_random_agent(400)
