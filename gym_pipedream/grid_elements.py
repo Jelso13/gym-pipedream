@@ -1,4 +1,5 @@
 import random
+from tkinter import W
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
@@ -166,6 +167,7 @@ class Board:
         self.print_style=print_style
         self.current_water_position = None
         self.pipe_capacity = pipe_capacity
+        self.print_width = 60
 
     def get_tiles(self):
         return self.tiles
@@ -306,10 +308,11 @@ class Board:
     def __str__(self):
         # fix this as currently just sets everything to blue
         if self.print_style == "ascii":
+            subwidth = self.print_width//(self.width+1)
             strt = "\033[36m"
             white = ""
             nd = "\033[0m"
-            return_string = "-"*130 + "\n"
+            return_string = "-"*self.print_width + "\n"
             for i in range(self.height):
                 for j in range(self.width):
                     current_tile = self.tiles[i*self.width +j]
@@ -319,10 +322,10 @@ class Board:
                         chr_val += str(current_tile.state)
                     # if full of water:
                     if self.tiles[i*self.width + j].state <= 0:
-                        return_string += "| " + strt + "{:^10s} ".format(chr_val) + nd
+                        return_string += "|" + strt + "{:^{subwidth}s}".format(chr_val, subwidth=subwidth) + nd
                     else:
-                        return_string += "| {:^10s} ".format(chr_val)
-                return_string += "|\n" + "-"*130 + "\n"
+                        return_string += "|{:^{subwidth}s}".format(chr_val, subwidth=subwidth)
+                return_string += "|\n" + "-"*self.print_width + "\n"
 
         elif self.print_style == "descriptive":
             return_string = "-"*130 + "\n"

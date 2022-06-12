@@ -214,9 +214,9 @@ def test_longer_fill_time():
 
 if __name__=="__main__":
     test_random_agent()
-    test_cross_pipe_water()
-    test_water_pipe_nonreplaceable()
-    test_tap_nonreplaceable()
-    test_replaceable_empty_pipe()
-    test_partially_filled_pipes_nonreplaceable()
-    test_longer_fill_time()
+    #test_cross_pipe_water()
+    #test_water_pipe_nonreplaceable()
+    #test_tap_nonreplaceable()
+    #test_replaceable_empty_pipe()
+    #test_partially_filled_pipes_nonreplaceable()
+    #test_longer_fill_time()
