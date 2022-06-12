@@ -183,7 +183,9 @@ class Board:
 
         is_available_pipe = previous_tile.can_receive_water and previous_tile.state == self.pipe_capacity
 
-        if in_grid and (is_floor or is_available_pipe):
+        not_tap = previous_tile.type[:5] != "start"
+
+        if in_grid and (is_floor or is_available_pipe) and not_tap:
             self.tiles[self._coords_to_index(location)] = object
             return True
         return False

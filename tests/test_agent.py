@@ -1,5 +1,8 @@
 import gym
 import gym_pipedream
+from gym_pipedream.grid_elements import *
+from gym_pipedream.envs.pipedream_env import PipeDreamEnv
+import random
 
 def test_random_agent(episodes=100):
     env = gym.make("PipeDream-v0")
@@ -14,6 +17,156 @@ def test_random_agent(episodes=100):
         if done:
             break
 
+def test_cross_pipe_water():
+    random.seed(0)
+    env = PipeDreamEnv(render_mode="ascii")
+    state = env.reset()
+    env.render()
+
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.current_tile = env.next_tiles[0]
+
+    w,h = [env.board.width, env.board.height]
+
+    #env.render()
+    for i in range(100):
+        if i == 0:
+            action = [7,6]
+        elif i == 1:
+            action = [7,5]
+        elif i == 2:
+            action = [7,4]
+        elif i == 3:
+            action = [8,4]
+            random.seed(0)
+        elif i == 4:
+            action = [8,5]
+        elif i == 5:
+            action = [6,5]
+        else:
+            #action = env.action_space.sample()
+            action = [random.randint(0,w-1), random.randint(0,h-1)]
+        
+        print("action = ", action)
+        print("next tiles = ", [t.type for t in env.next_tiles])
+        print("start state = ", env.board.tiles[42].state)
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+
+    final_pipe =  env.board.tiles[5*10 + 6]
+    cross_pipe =  env.board.tiles[5*10 + 7]
+    assert final_pipe.type == "horizontal"
+    assert final_pipe.state == 0
+    assert cross_pipe.state2 == 0
+    assert cross_pipe.state == 0
+
+def test_water_pipe_nonreplaceable():
+    random.seed(0)
+    env = PipeDreamEnv(render_mode="ascii")
+    state = env.reset()
+    env.render()
+
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.current_tile = env.next_tiles[0]
+
+    w,h = [env.board.width, env.board.height]
+
+    #env.render()
+    for i in range(100):
+        if i == 0:
+            action = [7,6]
+        elif i == 1:
+            action = [7,5]
+        elif i == 2:
+            action = [7,4]
+        elif i == 3:
+            action = [8,4]
+            random.seed(0)
+        elif i == 4:
+            action = [8,5]
+        elif i == 5:
+            action = [6,5]
+        else:
+            #action = env.action_space.sample()
+            action = [random.randint(0,w-1), random.randint(0,h-1)]
+        
+        # if one of the blocks is filled with water, try to replace
+        if env.board.tiles[6*10+7].state == 0:
+            action = [7,6]
+
+        
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+    
+    assert env.board.tiles[6*10+7].state == 0
+
+
+def test_tap_nonreplaceable():
+    random.seed(0)
+    env = PipeDreamEnv(render_mode="ascii")
+    state = env.reset()
+    env.render()
+
+    for i in range(100):
+        action = [6,6]
+        
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+    
+    assert env.board.tiles[6*10 + 6].type[:5] == "start"
+
+
+def test_replaceable_empty_pipe():
+    random.seed(0)
+    env = PipeDreamEnv(render_mode="ascii")
+    state = env.reset()
+    env.render()
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+
+    for i in range(100):
+        action = [3,3]
+        held_tile = env.current_tile
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+            
+        assert env.board.tiles[33].type == held_tile.type
+
+def test_partially_filled_pipes_nonreplaceable():
+    random.seed(0)
+    env = PipeDreamEnv(render_mode="ascii")
+    state = env.reset()
+    env.render()
+
+    env.board.tiles[33] = LeftUpPipe()
+    env.board.tiles[33].state = 1 # set state to partially filled
+
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+
+    for i in range(100):
+        action = [3,3]
+        held_tile = env.current_tile
+        state, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+            
+        assert env.board.tiles[33].type == "leftup"
+
+
 if __name__=="__main__":
     test_random_agent()
-    test_random_agent(400)
+    test_cross_pipe_water()
+    test_water_pipe_nonreplaceable()
