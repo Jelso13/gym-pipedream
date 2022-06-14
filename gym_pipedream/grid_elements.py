@@ -328,11 +328,11 @@ class Board:
                 return_string += "|\n" + "-"*self.print_width + "\n"
 
         elif self.print_style == "descriptive":
-            return_string = "-"*130 + "\n"
+            return_string = "-"*150 + "\n"
             for i in range(self.height):
                 for j in range(self.width):
-                    return_string += "| {:^10s} ".format(self.tiles[i*self.width + j].type)
-                return_string += "|\n" + "-"*130 + "\n"
+                    return_string += "|{:^14s}".format(self.tiles[i*self.width + j].type + " (" + str(self.tiles[i*self.width +j].state)+")")
+                return_string += "|\n" + "-"*150 + "\n"
         else:
             strt = "\033[36m"
             nd = "\033[0m"
