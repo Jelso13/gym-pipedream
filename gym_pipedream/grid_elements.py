@@ -4,6 +4,8 @@ from tkinter import W
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
 PIPE_CAPACITY = 4
+PRINT_WIDTH = 50
+WINDOW_SIZE = (550,350)
 
 TILE_QUEUE_LEN = 5
 
@@ -160,14 +162,14 @@ class Board:
                             every 4 steps.
     """
 
-    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, print_style="ascii"):
+    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, print_style="ascii", print_width=PRINT_WIDTH):
         self.width = width
         self.height = height
         self.tiles = [Floor()] * self.width * self.height
         self.print_style=print_style
         self.current_water_position = None
         self.pipe_capacity = pipe_capacity
-        self.print_width = 60
+        self.print_width = print_width
 
     def get_tiles(self):
         return self.tiles
