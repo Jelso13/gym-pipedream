@@ -184,6 +184,7 @@ if __name__ == "__main__":
         if i == 2:
             action = [7,4]
         if i == 3:
+            random.seed(0)
             action = [8,4]
         if i == 4:
             action = [8,5]
