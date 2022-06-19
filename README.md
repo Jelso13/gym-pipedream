@@ -1,14 +1,12 @@
 # gym-pipedream
-🚧 Under Construction 🚧
----
 
-An [OpenAI Gym](https://github.com/openai/gym) environment inspired by the Windows 95 game, Pipe Dream. 
+An [OpenAI Gym](https://github.com/openai/gym) environment inspired by the Windows 95 game, [Pipe Dream](https://en.wikipedia.org/wiki/Pipe_Mania). 
 
-![Pipe Dream welcome screen](/images/pipe-dream-ms.png)
+![til](./images/pipedream.GIF)
 
----
 
 ## Design
+---
 The environment is split into two sections
 1. Main Board
 2. Pipe Queue

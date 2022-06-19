@@ -43,7 +43,7 @@ class Renderer:
             pygame.display.init()
             pygame.display.set_caption("Pipe Dream")
             if self.render_mode == "human":
-                self.queue_width = (self.window_size // board.width) * 2
+                self.queue_width = (self.window_size // board.width) #* 2
                 self.window = pygame.display.set_mode((self.width + self.queue_width, self.height))
                 #self.window = pygame.display.set_mode((self.width, self.height))
                 self.window.fill((195, 195, 195))
