@@ -29,7 +29,7 @@ def core_test_with_water_loop(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]])
     w,h = [env.board.width, env.board.height]
     for i in range(100):
         if i == 3:
-            random.seed(0)
+            random.seed(1)
         if i in range(len(actions)):
             action = actions[i]
         else:
