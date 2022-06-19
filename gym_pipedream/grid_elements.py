@@ -60,6 +60,7 @@ class Tile:
         self.type = type
         self.state = state
         self.can_receive_water = False
+        self.state2 = -1
 
     def get_encoding(self):
         if isinstance(self.state, str):
