@@ -6,34 +6,32 @@ from typing import Optional
 from gym_pipedream.grid_elements import *
 from gym_pipedream.rendering import Renderer
 
-OBS_LOW = -2
-OBS_HIGH = 10
 
 class PipeDreamEnv(gym.Env):
-    # CHANGE THE METADATA
-    # human = pygame, rgb_array = curses, ascii = text descriptive = verbose.
-    metadata = {"render_modes": ["human", "rgb_array", "ascii", "descriptive"], "render_fps": 1}
 
-    def __init__(self, render_mode = "human", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, rewards=REWARDS, print_width=PRINT_WIDTH, window_size=WINDOW_SIZE):
-        assert render_mode in self.metadata["render_modes"]
+    def __init__(self, **kwargs):
+        for key in ENV_DEFAULTS.keys():
+            if key in kwargs.keys():
+                setattr(self, key, kwargs.get(key))
+            else:
+                setattr(self, key, ENV_DEFAULTS[key])
 
-        self.render_mode = render_mode
-
-        self.board = Board(width, height, pipe_capacity, render_mode, print_width=print_width)
-        self.pipe_capacity = pipe_capacity
-        self.next_tiles = [None] * TILE_QUEUE_LEN
+        self.board = Board(self.width, self.height, self.pipe_capacity, self.render_mode, print_width=self.print_width)
+        self.pipe_capacity = self.pipe_capacity
+        self.next_tiles = [None] * self.tile_queue_len
         self.current_tile = None
 
         # observation space consists of grid representing every square
-        self.observation_space = spaces.Box(low=OBS_LOW, high=OBS_HIGH, shape=(width, height), dtype=np.int8)
+        self.observation_space = spaces.Box(low=self.obs_low, high=self.obs_high, shape=(self.width, self.height), dtype=np.int8)
         # one action for each position on the grid
-        self.action_space = spaces.MultiDiscrete([width, height])
-        self.rewards = rewards
+        self.action_space = spaces.MultiDiscrete([self.width, self.height])
+        self.rewards = self.rewards
         
 
         # handle the pygame render if render mode is human
-        if render_mode == "human":
-            self.renderer = Renderer(window_size, self.metadata["render_fps"])
+        if self.render_mode == "human":
+            print("HIT HERE")
+            self.renderer = Renderer(self.window_size, self.render_fps)
         # Potentially include a curses rendering **
 
     def reset(self, seed=0, return_info=False, options=None):
@@ -45,7 +43,7 @@ class PipeDreamEnv(gym.Env):
         # init walls if any
 
         # init list of next tiles
-        self.next_tiles = [random.choice(PLAYING_TILES)(state=self.pipe_capacity) for i in range(TILE_QUEUE_LEN)]
+        self.next_tiles = [random.choice(PLAYING_TILES)(state=self.pipe_capacity) for i in range(self.tile_queue_len)]
         self.current_tile = self.next_tiles[0]
 
         return self._get_observation()

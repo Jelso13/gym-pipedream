@@ -1,5 +1,4 @@
 import random
-from tkinter import W
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 7
@@ -9,9 +8,27 @@ WINDOW_SIZE = 600
 
 TILE_QUEUE_LEN = 5
 
+OBS_LOW = -2
+OBS_HIGH = 10
+
 REWARDS = {
     "spill": -10,
     "new_pipe": 1
+}
+
+ENV_DEFAULTS = {
+    "render_mode":      "human", 
+    "width":            BOARD_WIDTH,
+    "height":           BOARD_HEIGHT,
+    "pipe_capacity":    PIPE_CAPACITY,
+    "rewards":          REWARDS,
+    "print_width":      PRINT_WIDTH,
+    "window_size":      WINDOW_SIZE,
+    "obs_low":          OBS_LOW,
+    "obs_high":         OBS_HIGH,
+    "tile_queue_len":   TILE_QUEUE_LEN,
+    "render_fps":       1,
+    "new_val":          "something"
 }
 
 

@@ -5,7 +5,7 @@ from gym_pipedream.envs.pipedream_env import PipeDreamEnv
 import random
 import pygame
 
-def test_random_agent(steps=100):
+def test_random_agent_render(steps=100):
     env = gym.make("PipeDream-v0")
     env.reset()
     env.render()
@@ -15,11 +15,13 @@ def test_random_agent(steps=100):
         env.render()
         if done:
             break
+    print("env.render_mode = ", env.render_mode)
     env.close()
 
-def test_working_loop(steps=100, pipe_capacity=5):
+def test_working_loop(steps=100, **kwargs):
     random.seed(0)
-    env = PipeDreamEnv(render_mode="human", pipe_capacity=pipe_capacity)
+    #env = PipeDreamEnv(**kwargs)
+    env = gym.make("PipeDream-v0", **kwargs)
     state = env.reset()
     env.render()
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
@@ -73,21 +75,21 @@ def test_20x20_board(steps=100):
             break
     env.close()
 
-def test_pipe_capacity_10(steps=100):
+def test_pipe_capacity_10():
+    """ with render_fps=8 """
+    test_working_loop(pipe_capacity=10, render_fps=8)
+
+def test_pipe_capacity_5():
     test_working_loop(pipe_capacity=5)
 
-def test_pipe_capacity_5(steps=100):
-    test_working_loop(pipe_capacity=4)
-
-def test_pipe_capacity_2(steps=100):
-    test_working_loop(pipe_capacity=3)
-
-def test_pipe_capacity_1(steps=100):
+def test_pipe_capacity_2():
     test_working_loop(pipe_capacity=2)
 
+def test_pipe_capacity_1():
+    test_working_loop(pipe_capacity=1)
+
 if __name__=="__main__":
-    print("Starting capacity 5 test")
-    test_pipe_capacity_5()
+    test_random_agent_render()
     #print("Starting capacity 4 test")
     #test_pipe_capacity_4()
     #print("Starting capacity 3 test")
