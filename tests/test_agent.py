@@ -17,9 +17,9 @@ def test_random_agent(steps=100):
         if done:
             break
 
-def core_test_with_water_loop(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]]):
+def core_test_with_water_loop(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
     random.seed(0)
-    env = PipeDreamEnv(render_mode="ascii")
+    env = PipeDreamEnv(render_mode="ascii", pipe_capacity=pipe_capacity)
     state = env.reset()
     env.render()
 
@@ -84,18 +84,23 @@ def test_partially_filled_pipes_nonreplaceable():
     env = PipeDreamEnv(render_mode="ascii")
     state = env.reset()
     env.render()
-    env.board.tiles[33] = LeftUpPipe()
-    env.board.tiles[33].state = 1 # set state to partially filled
-    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.board.set_tile([7,6], LeftUpPipe())
+    #env.board.tiles[33] = LeftUpPipe()
+    #env.board.tiles[33].state = 1 # set state to partially filled
+    env.render()
+    env.next_tiles = [VerticalPipe() for j in range(8)] + [HorizontalPipe() for i in range(92)]
     for i in range(100):
-        action = [3,3]
+        if i >= 6:
+            action = [7,6]
+        else:
+            action = [3,3]
         held_tile = env.current_tile
         state, reward, done, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")
             break
-        assert env.board.tiles[33].type == "leftup"
+    assert env.board.tiles[6*env.board.width + 7].type == "leftup"
 
 def test_longer_fill_time():
     random.seed(0)
@@ -108,7 +113,6 @@ def test_longer_fill_time():
     env.current_tile = env.next_tiles[0]
 
     w,h = [env.board.width, env.board.height]
-
     #env.render()
     for i in range(100):
         if i == 0:
@@ -143,11 +147,31 @@ def test_longer_fill_time():
     final_pipe =  env.board.tiles[5*10 + 6]
     cross_pipe =  env.board.tiles[5*10 + 7]
 
+def test_pipe_capacity_5():
+    core_test_with_water_loop(pipe_capacity=5)
+
+def test_pipe_capacity_4():
+    core_test_with_water_loop(pipe_capacity=4)
+
+def test_pipe_capacity_3():
+    core_test_with_water_loop(pipe_capacity=3)
+
+def test_pipe_capacity_2():
+    core_test_with_water_loop(pipe_capacity=2)
+
+def test_pipe_capacity_1():
+    core_test_with_water_loop(pipe_capacity=1)
+
+#def test_cross_half_filled_replace():
+#
+#    raise NotImplementedError
+
 if __name__=="__main__":
     #test_random_agent()
     #test_cross_pipe_water()
     #test_water_pipe_nonreplaceable()
     #test_tap_nonreplaceable()
-    test_replaceable_empty_pipe()
-    #test_partially_filled_pipes_nonreplaceable()
+    #test_replaceable_empty_pipe()
+    test_partially_filled_pipes_nonreplaceable()
     #test_longer_fill_time()
+    #test_pipe_capacity_3()

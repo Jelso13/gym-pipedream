@@ -11,10 +11,8 @@ def test_random_agent(steps=100):
     env.render()
     for e in range(steps):
         action = env.action_space.sample()
-        print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
-        print(reward)
         if done:
             break
     env.close()
@@ -45,10 +43,8 @@ def test_5x5_board(steps=100):
     env.render()
     for e in range(steps):
         action = env.action_space.sample()
-        print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
-        print(reward)
         if done:
             break
     env.close()
@@ -59,10 +55,8 @@ def test_minimum_3x3_board(steps=100):
     env.render()
     for e in range(steps):
         action = env.action_space.sample()
-        print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
-        print(reward)
         if done:
             break
     env.close()
@@ -73,46 +67,32 @@ def test_20x20_board(steps=100):
     env.render()
     for e in range(steps):
         action = env.action_space.sample()
-        print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
-        print(reward)
         if done:
             break
     env.close()
 
-def test_pipe_capacity_8(steps=100):
-    env = gym.make("PipeDream-v0", pipe_capacity=8)
-    env.reset()
-    env.render()
-    for e in range(steps):
-        action = env.action_space.sample()
-        print("action = ", action)
-        state, reward, done, info = env.step(action)
-        env.render()
-        print(reward)
-        if done:
-            break
-    env.close()
-
-def test_pipe_capacity_5(steps=100):
+def test_pipe_capacity_10(steps=100):
     test_working_loop(pipe_capacity=5)
 
-def test_pipe_capacity_4(steps=100):
+def test_pipe_capacity_5(steps=100):
     test_working_loop(pipe_capacity=4)
 
-def test_pipe_capacity_3(steps=100):
+def test_pipe_capacity_2(steps=100):
     test_working_loop(pipe_capacity=3)
 
-def test_pipe_capacity_2(steps=100):
+def test_pipe_capacity_1(steps=100):
     test_working_loop(pipe_capacity=2)
 
-def test_pipe_capacity_1(steps=100):
-    test_working_loop(pipe_capacity=1)
-
 if __name__=="__main__":
+    print("Starting capacity 5 test")
     test_pipe_capacity_5()
-    test_pipe_capacity_4()
-    test_pipe_capacity_3()
-    test_pipe_capacity_2()
-    test_pipe_capacity_1()
+    #print("Starting capacity 4 test")
+    #test_pipe_capacity_4()
+    #print("Starting capacity 3 test")
+    #test_pipe_capacity_3()
+    #print("Starting capacity 2 test")
+    #test_pipe_capacity_2()
+    #print("Starting capacity 1 test")
+    #test_pipe_capacity_1()

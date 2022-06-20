@@ -61,6 +61,7 @@ class Tile:
         self.state = state
         self.can_receive_water = False
         self.state2 = -1
+        self.can_replace = True
 
     def get_encoding(self):
         if isinstance(self.state, str):
@@ -73,6 +74,7 @@ class Wall(Tile):
         self.type = "wall"
         self.state = -1
         super().__init__(self.type, self.state)
+        self.can_replace = False
 
 class Floor(Tile):
     def __init__(self):
@@ -136,6 +138,7 @@ class StartingPipe(Pipe):
         super().__init__("start"+direction, *args, **kwargs)
         self.transition[direction] = direction
         self.water_entrance = direction
+        self.can_replace = False
 
 PLAYING_TILES = [
     VerticalPipe,
@@ -179,19 +182,14 @@ class Board:
         # can only set tile if in grid, the floor or pipe with full capacity.
         previous_tile = self.tiles[self._coords_to_index(location)]
 
-        in_grid = not (location[0] < 0 or location[0] > self.width or \
-            location[1] < 0 or location[1] > self.height)
-
-        is_floor = previous_tile.type == "floor"
-
-        is_available_pipe = previous_tile.can_receive_water and previous_tile.state == self.pipe_capacity
-
-        not_tap = previous_tile.type[:5] != "start"
-
-        if in_grid and (is_floor or is_available_pipe) and not_tap:
-            self.tiles[self._coords_to_index(location)] = object
-            return True
-        return False
+        if (location[0] < 0 or location[0] > self.width or \
+            location[1] < 0 or location[1] > self.height) or \
+            not previous_tile.can_replace:
+            return False
+        self.tiles[self._coords_to_index(location)] = object
+        # ensure that the set tile has the same capacity
+        self.tiles[self._coords_to_index(location)].state = self.pipe_capacity
+        return True
 
     def reset_board(self):
         self.tiles = [Floor()] * self.width * self.height
@@ -211,8 +209,7 @@ class Board:
             if the next pipe does not exist:
                 return failed.
             else:
-                set state to capacity - 1 or some other value so its started to be filled
-                and cannot be changed
+                set pipe.can_replace = false
         """
         done = False
         pipe_filled = False
@@ -227,7 +224,8 @@ class Board:
                 done = True
             else: # the new pipe is correct - indicate it is being filled by reducing by -1
                 self.current_water_position = next_water_position
-                self.tiles[self.current_water_position].state -= 1
+                #self.tiles[self.current_water_position].state -= 1
+                self.tiles[self.current_water_position].can_replace = False
                 self.tiles[self.current_water_position].water_entrance = water_entrance
                 pipe_filled = True
 
@@ -254,14 +252,11 @@ class Board:
 
         # determine if the next position is on the board
         next_position_index = -1
-        print("water_direction = ", water_direction)
         if water_direction == "up" or water_direction == "down" or \
             (water_direction == "right" and (self.current_water_position + 1) % self.width != 0) or \
             (water_direction == "left" and self.current_water_position % self.width != 0):
             next_position_index = self.current_water_position + dir_to_index[water_direction]
-            print("HIT")
 
-        print("next_position_index = ", next_position_index)
 
         if next_position_index > len(self.tiles)-1 or not self.tiles[next_position_index].can_receive_water:
             return -1, switch_dir_perspective[water_direction]
@@ -274,7 +269,10 @@ class Board:
                 # make state2 be full to utilise .state
                 next_pipe.state2 = next_pipe.state
                 next_pipe.state = self.pipe_capacity
+                print("next_pipe.can_receive_water = ", next_pipe.can_receive_water)
             else:
+                print("Returned here")
+                print("next_pipe.state =  ", next_pipe.state,"\tself.pipe_capacity = ", self.pipe_capacity)
                 # make sure it isnt a cross pipe
                 return -1, switch_dir_perspective[water_direction]
 

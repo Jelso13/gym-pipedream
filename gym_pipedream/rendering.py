@@ -1,3 +1,4 @@
+from tkinter import W
 import pygame
 import numpy as np
 import random
@@ -78,17 +79,14 @@ class Renderer:
                         if tile.water_entrance == k:
                             self.fill_pipe2(0, k, tile.transition[k], cell, tile_size, color)
                 elif tile.state == board.pipe_capacity or not tile.can_receive_water: # if empty
-                    if tile.can_receive_water:
+                    if tile.can_receive_water and tile.state2 != 0:
                         color = (0,0,0)
                         filled_ratio = 0
                         for k in tile.transition.keys():
                             self.fill_pipe2(0.0, k, tile.transition[k], cell, tile_size, color)
                 else: # if being filled 
                     color = (9, 195, 255)
-                    if board.pipe_capacity <= 2:
-                        filled_ratio = (tile.state)/board.pipe_capacity
-                    else:
-                        filled_ratio = (tile.state-1)/board.pipe_capacity
+                    filled_ratio = (tile.state)/board.pipe_capacity
                     current_water = board.tiles[board.current_water_position]
                     destination = current_water.transition[current_water.water_entrance]
                     origin = current_water.water_entrance
