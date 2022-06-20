@@ -4,11 +4,11 @@ from gym_pipedream.grid_elements import *
 from gym_pipedream.envs.pipedream_env import PipeDreamEnv
 import random
 
-def test_random_agent(episodes=100):
-    env = gym.make("PipeDream-v0")
+def test_random_agent(steps=100):
+    env = gym.make("PipeDream-v0", render_mode="ascii")
     env.reset()
     env.render()
-    for e in range(episodes):
+    for e in range(steps):
         action = env.action_space.sample()
         print("action = ", action)
         state, reward, done, info = env.step(action)

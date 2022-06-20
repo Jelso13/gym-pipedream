@@ -85,7 +85,10 @@ class Renderer:
                             self.fill_pipe2(0.0, k, tile.transition[k], cell, tile_size, color)
                 else: # if being filled 
                     color = (9, 195, 255)
-                    filled_ratio = (tile.state-1)/board.pipe_capacity
+                    if board.pipe_capacity <= 2:
+                        filled_ratio = (tile.state)/board.pipe_capacity
+                    else:
+                        filled_ratio = (tile.state-1)/board.pipe_capacity
                     current_water = board.tiles[board.current_water_position]
                     destination = current_water.transition[current_water.water_entrance]
                     origin = current_water.water_entrance
@@ -174,4 +177,9 @@ class Renderer:
                 destination,
                 width = line_width
             )
+
+    def close(self):
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
 

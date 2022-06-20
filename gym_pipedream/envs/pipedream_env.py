@@ -14,7 +14,7 @@ class PipeDreamEnv(gym.Env):
     # human = pygame, rgb_array = curses, ascii = text descriptive = verbose.
     metadata = {"render_modes": ["human", "rgb_array", "ascii", "descriptive"], "render_fps": 1}
 
-    def __init__(self, render_mode = "ascii", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, rewards=REWARDS, print_width=PRINT_WIDTH, window_size=WINDOW_SIZE):
+    def __init__(self, render_mode = "human", width = BOARD_WIDTH, height = BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, rewards=REWARDS, print_width=PRINT_WIDTH, window_size=WINDOW_SIZE):
         assert render_mode in self.metadata["render_modes"]
 
         self.render_mode = render_mode
@@ -100,18 +100,19 @@ class PipeDreamEnv(gym.Env):
     def _get_reward(self, pipe_filled=False):
         if pipe_filled:
             return 1
-        
         return 0
-
 
     def set_board_position(self, loc, obj):
         self.board[loc[1]*self.width + loc[0]] = obj
+
+    def close(self):
+        self.renderer.close()
 
 
 if __name__ == "__main__":
     random.seed(0)
     #env = PipeDreamEnv(render_mode="human", window_size=900)
-    env = PipeDreamEnv(render_mode="human")
+    env = PipeDreamEnv(width=5, height=5, render_mode="human")
     #env = PipeDreamEnv(render_mode="ascii", window_size=600)
     state = env.reset()
     env.render()
