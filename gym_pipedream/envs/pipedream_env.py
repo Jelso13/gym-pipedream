@@ -30,7 +30,6 @@ class PipeDreamEnv(gym.Env):
 
         # handle the pygame render if render mode is human
         if self.render_mode == "human":
-            print("HIT HERE")
             self.renderer = Renderer(self.window_size, self.render_fps)
         # Potentially include a curses rendering **
 
@@ -84,7 +83,7 @@ class PipeDreamEnv(gym.Env):
 
     def render(self):
         if self.render_mode in ["human", "rgb_array"]:
-            self.renderer.render(self.board, self.next_tiles)
+            return self.renderer.render(self.board, self.next_tiles)
         else:
             print(self.board)
             print("")

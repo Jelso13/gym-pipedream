@@ -1,34 +1,20 @@
 import random
 
-BOARD_WIDTH = 10
-BOARD_HEIGHT = 7
-PIPE_CAPACITY = 5
-PRINT_WIDTH = 50
-WINDOW_SIZE = 600
-
-TILE_QUEUE_LEN = 5
-
-OBS_LOW = -2
-OBS_HIGH = 10
-
-REWARDS = {
-    "spill": -10,
-    "new_pipe": 1
-}
-
 ENV_DEFAULTS = {
     "render_mode":      "human", 
-    "width":            BOARD_WIDTH,
-    "height":           BOARD_HEIGHT,
-    "pipe_capacity":    PIPE_CAPACITY,
-    "rewards":          REWARDS,
-    "print_width":      PRINT_WIDTH,
-    "window_size":      WINDOW_SIZE,
-    "obs_low":          OBS_LOW,
-    "obs_high":         OBS_HIGH,
-    "tile_queue_len":   TILE_QUEUE_LEN,
+    "width":            10,
+    "height":           7,
+    "pipe_capacity":    5,
+    "rewards":          {
+        "spill": -10,
+        "new_pipe": 1
+    },
+    "print_width":      50,
+    "window_size":      600,
+    "obs_low":          -2,
+    "obs_high":         10,
+    "tile_queue_len":   5,
     "render_fps":       1,
-    "new_val":          "something"
 }
 
 
@@ -101,7 +87,7 @@ class Floor(Tile):
 
 
 class Pipe(Tile):
-    def __init__(self, type, state=PIPE_CAPACITY):
+    def __init__(self, type, state=ENV_DEFAULTS["pipe_capacity"]):
         self.state = state
         super().__init__(type, self.state)
         self.type = type
@@ -124,7 +110,7 @@ class HorizontalPipe(Pipe):
 class CrossPipe(VerticalPipe, HorizontalPipe):
     def __init__(self, *args, **kwargs):
         super(CrossPipe, self).__init__(type="cross", *args, **kwargs)
-        self.state2 = PIPE_CAPACITY
+        self.state2 = ENV_DEFAULTS["pipe_capacity"]
 
 class LeftUpPipe(Pipe):
     def __init__(self, type="leftup", *args, **kwargs):
@@ -183,7 +169,7 @@ class Board:
                             every 4 steps.
     """
 
-    def __init__(self, width=BOARD_WIDTH, height=BOARD_HEIGHT, pipe_capacity=PIPE_CAPACITY, print_style="ascii", print_width=PRINT_WIDTH):
+    def __init__(self, width, height, pipe_capacity, print_style, print_width):
         self.width = width
         self.height = height
         self.tiles = [Floor()] * self.width * self.height
@@ -286,10 +272,7 @@ class Board:
                 # make state2 be full to utilise .state
                 next_pipe.state2 = next_pipe.state
                 next_pipe.state = self.pipe_capacity
-                print("next_pipe.can_receive_water = ", next_pipe.can_receive_water)
             else:
-                print("Returned here")
-                print("next_pipe.state =  ", next_pipe.state,"\tself.pipe_capacity = ", self.pipe_capacity)
                 # make sure it isnt a cross pipe
                 return -1, switch_dir_perspective[water_direction]
 

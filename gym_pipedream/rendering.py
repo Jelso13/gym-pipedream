@@ -49,74 +49,64 @@ class Renderer:
                 #self.window = pygame.display.set_mode((self.width, self.height))
                 self.window.fill((195, 195, 195))
                 self.board_border = ((self.window_size-1) // board.width)
-                #pygame.draw.rect(
-                #    self.window,
-                #    (195, 195, 195),
-                #    pygame.Rect(
-                #        (self.width, 0),
-                #        (self.width + (self.window_size // board.width) *2, self.height)
-                #    )
-                #)
+                self.tile_size = (
+                    (self.width-self.board_border) // board.width
+                )  # The size of a single grid square in pixels
             elif self.render_mode == "rgb_array":
                 self.window = pygame.Surface(self.window_size)
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
-        canvas = pygame.Surface((self.width, self.height))
-        
-        tile_size = (
-            (self.width-self.board_border) // board.width
-        )  # The size of a single grid square in pixels
-
         for y in range(0, board.height):
             for x in range(0, board.width):
                 tile = board.tiles[y * board.width + x] 
-                cell = np.array([x*tile_size + self.queue_width, y * tile_size]) + self.board_border // 2
+                cell = np.array([x*self.tile_size + self.queue_width, y * self.tile_size]) + self.board_border // 2
+                if y == 5 and x == 7:
+                    print("5,7 = ", cell)
                 if tile.state == 0: # if waterlogged
                     color = (9, 195, 255)
                     filled_ratio = 1
                     for k in tile.transition.keys():
                         if tile.water_entrance == k:
-                            self.fill_pipe2(0, k, tile.transition[k], cell, tile_size, color)
+                            self.fill_pipe2(0, k, tile.transition[k], cell, self.tile_size, color)
                 elif tile.state == board.pipe_capacity or not tile.can_receive_water: # if empty
                     if tile.can_receive_water and tile.state2 != 0:
                         color = (0,0,0)
                         filled_ratio = 0
                         for k in tile.transition.keys():
-                            self.fill_pipe2(0.0, k, tile.transition[k], cell, tile_size, color)
+                            self.fill_pipe2(0.0, k, tile.transition[k], cell, self.tile_size, color)
                 else: # if being filled 
                     color = (9, 195, 255)
                     filled_ratio = (tile.state)/board.pipe_capacity
                     current_water = board.tiles[board.current_water_position]
                     destination = current_water.transition[current_water.water_entrance]
                     origin = current_water.water_entrance
-                    self.fill_pipe2(filled_ratio, origin, destination, cell, tile_size, color)
+                    self.fill_pipe2(filled_ratio, origin, destination, cell, self.tile_size, color)
 
                 tile_type = tile.type
                 self.window.blit(
-                    pygame.transform.scale(PIPE_IMG[tile_type], (tile_size, tile_size)), 
+                    pygame.transform.scale(PIPE_IMG[tile_type], (self.tile_size, self.tile_size)), 
                     cell
                 )
 
         for position, tile in enumerate(reversed(next_tiles[:5])):
-            y_offset = (self.height - 5 * tile_size) // 2
-            #cell = np.array([self.queue_width // 2 - (tile_size // 4), position*tile_size + self.board_border])
-            cell = np.array([self.queue_width // 2 - (tile_size // 4), position*tile_size + y_offset])
+            y_offset = (self.height - 5 * self.tile_size) // 2
+            cell = np.array([self.queue_width // 2 - (self.tile_size // 4), position*self.tile_size + y_offset])
             pygame.draw.rect(
                 self.window,
                 (195, 195, 195),
                 pygame.Rect(
                     cell,
-                    (tile_size+2, tile_size+2)
+                    (self.tile_size+2, self.tile_size+2)
                 )
             )
             if tile.can_receive_water:
                 color = (0,0,0)
                 filled_ratio = 0
                 for k in tile.transition.keys():
-                    self.fill_pipe2(0.0, k, tile.transition[k], cell, tile_size, color)
+                    self.fill_pipe2(0.0, k, tile.transition[k], cell, self.tile_size, color)
             self.window.blit(
-                pygame.transform.scale(PIPE_IMG[tile.type], (tile_size, tile_size)),
+                pygame.transform.scale(PIPE_IMG[tile.type], (self.tile_size, self.tile_size)),
                 cell
             )
 
@@ -128,8 +118,11 @@ class Renderer:
             self.clock.tick(self.render_fps)
         else:  # rgb_array
             return np.transpose(
-                np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
+                np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
             )
+        return np.transpose(
+            np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
+        )
 
     def fill_pipe2(self, ratio, origin, direction, cell, tile_size, color=(0,0,0)):
         dir_coords = {
@@ -141,7 +134,7 @@ class Renderer:
 
         center = np.array([cell[0] + tile_size // 2, cell[1] + tile_size // 2])
         ratio = 1-ratio
-        line_width = int(tile_size / 4.0)
+        line_width = int(tile_size / 5.5)
         self.draw_line(dir_coords[origin], dir_coords[direction], center, ratio, color = color, line_width=line_width)
 
 
@@ -149,7 +142,8 @@ class Renderer:
         if np.array_equal(origin, destination):
             origin = center
             center = ((center[0] + destination[0])//2, (center[1] + destination[1])//2)
-        if ratio < 0.5:
+        if ratio <= 0.5:
+            ratio = ratio * 2
             center = origin + ratio * (center - origin)
             pygame.draw.line(
                 self.window,
@@ -166,7 +160,7 @@ class Renderer:
                 center,
                 width = line_width
             )
-            ratio = (ratio - 0.5) / 0.5
+            ratio = (ratio - 0.5) * 2
             destination = center + ratio*(destination - center)
             pygame.draw.line(
                 self.window,
