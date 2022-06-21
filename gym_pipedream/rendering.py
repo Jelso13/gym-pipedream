@@ -1,3 +1,4 @@
+import queue
 from tkinter import W
 import pygame
 import numpy as np
@@ -36,22 +37,60 @@ class Renderer:
         self.width = None
         self.height = None
 
+    """
+    max_width = 80% * screen width
+    max_height = 80% * screen height
+
+    self.width = board_border * 2 + self.tile_size * board.width 
+    self.width = (queue_width + board.width + board_border * 2) * self.tile_size
+    if board.width >= board.height:
+        self.width = min(max_width, self.window_size)
+        self.height = int((board.height/board.width) * self.width)
+    else:
+        self.height = min(max_height, self.window_size)
+        self.width = int((board.width/board.height) * self.height)
+
+    queue_width = 2 tiles
+    poss_tile_width = max_width // (board_width + 1 + queue_width)
+    poss_tile_height = max_height // (board_height + 1)
+    tile_size = min(poss_tile_width, poss_tile_height)
+    board_border = 0.5 * tile_size
+
+    self.height = board_border * 2 + tile_size * board.height
+    self.width = board_border * 2 + tile_size * board.width + queue_width
+    """
     def render(self, board, next_tiles, interpolate=True):
         if self.window is None:
-            self.height = int((board.height / board.width)*self.window_size)
-            self.width = self.window_size 
             pygame.init()
             pygame.display.init()
             pygame.display.set_caption("Pipe Dream")
+            info = pygame.display.Info()
+
+            screen_ratio = 0.8
+            screen_width, screen_height = info.current_w * screen_ratio, info.current_h * screen_ratio
+            screen_width = min(screen_width, self.window_size)
+            #screen_height = min(screen_height, self.window_size)
+            queue_width_in_tiles = 2
+            board_border_in_tiles = 0.5
+
+            width_in_tiles = board.width + queue_width_in_tiles + board_border_in_tiles * 2
+            height_in_tiles = max(board.height, 5) + board_border_in_tiles * 2
+            if width_in_tiles >= height_in_tiles:
+                self.width = min(screen_width, self.window_size)
+                self.height = int((height_in_tiles/width_in_tiles) * self.width)
+                self.tile_size = self.width / width_in_tiles
+            else:
+                self.height = min(screen_height, self.window_size)
+                self.width = int(((width_in_tiles)/height_in_tiles) * self.height)
+                self.tile_size = self.height / height_in_tiles
+
+            self.queue_width = self.tile_size * queue_width_in_tiles
+            self.board_border = self.tile_size * board_border_in_tiles
+
             if self.render_mode == "human":
-                self.queue_width = (self.window_size // board.width) #* 2
-                self.window = pygame.display.set_mode((self.width + self.queue_width, self.height))
-                #self.window = pygame.display.set_mode((self.width, self.height))
+                self.queue_tile_size = self.tile_size
+                self.window = pygame.display.set_mode((self.width, self.height)) #, pygame.RESIZABLE)
                 self.window.fill((195, 195, 195))
-                self.board_border = ((self.window_size-1) // board.width)
-                self.tile_size = (
-                    (self.width-self.board_border) // board.width
-                )  # The size of a single grid square in pixels
             elif self.render_mode == "rgb_array":
                 self.window = pygame.Surface(self.window_size)
         if self.clock is None:
@@ -60,9 +99,8 @@ class Renderer:
         for y in range(0, board.height):
             for x in range(0, board.width):
                 tile = board.tiles[y * board.width + x] 
-                cell = np.array([x*self.tile_size + self.queue_width, y * self.tile_size]) + self.board_border // 2
-                if y == 5 and x == 7:
-                    print("5,7 = ", cell)
+                centering_vert = (5-board.height)/2 if board.height < 5 else 0
+                cell = np.array([x*self.tile_size + self.queue_width, (y + centering_vert) * self.tile_size]) + self.board_border
                 if tile.state == 0: # if waterlogged
                     color = (9, 195, 255)
                     filled_ratio = 1
@@ -88,10 +126,16 @@ class Renderer:
                     pygame.transform.scale(PIPE_IMG[tile_type], (self.tile_size, self.tile_size)), 
                     cell
                 )
-
+        # render the queue
         for position, tile in enumerate(reversed(next_tiles[:5])):
-            y_offset = (self.height - 5 * self.tile_size) // 2
-            cell = np.array([self.queue_width // 2 - (self.tile_size // 4), position*self.tile_size + y_offset])
+            #queue_tile_size = self.tile_size
+            queue_tile_size = min((self.height-self.board_border) // 5, self.tile_size)
+            y_offset = (self.height - 5 * queue_tile_size) // 2
+
+            #cell = np.array([self.queue_width // 2 - (queue_tile_size // 4), position*queue_tile_size + y_offset])
+            w_start = (self.queue_width + self.board_border) // 2 - self.tile_size // 2
+            h_start = (position*queue_tile_size + y_offset)
+            cell = np.array([w_start, h_start])
             pygame.draw.rect(
                 self.window,
                 (195, 195, 195),
@@ -104,9 +148,9 @@ class Renderer:
                 color = (0,0,0)
                 filled_ratio = 0
                 for k in tile.transition.keys():
-                    self.fill_pipe2(0.0, k, tile.transition[k], cell, self.tile_size, color)
+                    self.fill_pipe2(0.0, k, tile.transition[k], cell, queue_tile_size, color)
             self.window.blit(
-                pygame.transform.scale(PIPE_IMG[tile.type], (self.tile_size, self.tile_size)),
+                pygame.transform.scale(PIPE_IMG[tile.type], (queue_tile_size, queue_tile_size)),
                 cell
             )
 
