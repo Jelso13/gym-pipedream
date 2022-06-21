@@ -64,28 +64,7 @@ class Renderer:
             pygame.init()
             pygame.display.init()
             pygame.display.set_caption("Pipe Dream")
-            info = pygame.display.Info()
-
-            screen_ratio = 0.8
-            screen_width, screen_height = info.current_w * screen_ratio, info.current_h * screen_ratio
-            screen_width = min(screen_width, self.window_size)
-            #screen_height = min(screen_height, self.window_size)
-            queue_width_in_tiles = 2
-            board_border_in_tiles = 0.5
-
-            width_in_tiles = board.width + queue_width_in_tiles + board_border_in_tiles * 2
-            height_in_tiles = max(board.height, 5) + board_border_in_tiles * 2
-            if width_in_tiles >= height_in_tiles:
-                self.width = min(screen_width, self.window_size)
-                self.height = int((height_in_tiles/width_in_tiles) * self.width)
-                self.tile_size = self.width / width_in_tiles
-            else:
-                self.height = min(screen_height, self.window_size)
-                self.width = int(((width_in_tiles)/height_in_tiles) * self.height)
-                self.tile_size = self.height / height_in_tiles
-
-            self.queue_width = self.tile_size * queue_width_in_tiles
-            self.board_border = self.tile_size * board_border_in_tiles
+            self.refresh_values(board)
 
             if self.render_mode == "human":
                 self.queue_tile_size = self.tile_size
@@ -101,6 +80,9 @@ class Renderer:
                 tile = board.tiles[y * board.width + x] 
                 centering_vert = (5-board.height)/2 if board.height < 5 else 0
                 cell = np.array([x*self.tile_size + self.queue_width, (y + centering_vert) * self.tile_size]) + self.board_border
+                if tile.type[:5] == "start":
+                    for k in tile.transition.keys():
+                        self.fill_pipe2(0.0, k, tile.transition[k], cell, self.tile_size, (0,0,0))
                 if tile.state == 0: # if waterlogged
                     color = (9, 195, 255)
                     filled_ratio = 1
@@ -153,8 +135,6 @@ class Renderer:
                 pygame.transform.scale(PIPE_IMG[tile.type], (queue_tile_size, queue_tile_size)),
                 cell
             )
-
-
         if self.render_mode == "human":
             pygame.event.pump()
             pygame.display.update()
@@ -167,6 +147,29 @@ class Renderer:
         return np.transpose(
             np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
         )
+
+    def refresh_values(self, board):
+        info = pygame.display.Info()
+        screen_ratio = 0.8
+        screen_width, screen_height = info.current_w * screen_ratio, info.current_h * screen_ratio
+        screen_width = min(screen_width, self.window_size)
+        #screen_height = min(screen_height, self.window_size)
+        queue_width_in_tiles = 2
+        board_border_in_tiles = 0.5
+
+        width_in_tiles = board.width + queue_width_in_tiles + board_border_in_tiles * 2
+        height_in_tiles = max(board.height, 5) + board_border_in_tiles * 2
+        if width_in_tiles >= height_in_tiles:
+            self.width = min(screen_width, self.window_size)
+            self.height = int((height_in_tiles/width_in_tiles) * self.width)
+            self.tile_size = self.width / width_in_tiles
+        else:
+            self.height = min(screen_height, self.window_size)
+            self.width = int(((width_in_tiles)/height_in_tiles) * self.height)
+            self.tile_size = self.height / height_in_tiles
+
+        self.queue_width = self.tile_size * queue_width_in_tiles
+        self.board_border = self.tile_size * board_border_in_tiles
 
     def fill_pipe2(self, ratio, origin, direction, cell, tile_size, color=(0,0,0)):
         dir_coords = {

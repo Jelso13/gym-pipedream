@@ -43,17 +43,25 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
             last_state = env.render()
             break
 
-    c = get_cell_center_col(env, 6, 5, last_state)
-    # check that the end of the loop contains water
-    assert np.array_equal(c, [9, 195, 255])
     env.close()
+    # check that the end of the loop contains water
+    assert np.array_equal(get_cell_center_col(env, 6,5, last_state), [9, 195, 255])
+    assert np.array_equal(get_cell_center_col(env, 7,5, last_state), [9, 195, 255])
+    assert np.array_equal(get_cell_center_col(env, 8,5, last_state), [9, 195, 255])
+    assert np.array_equal(get_cell_center_col(env, 8,4, last_state), [9, 195, 255])
+    assert np.array_equal(get_cell_center_col(env, 7,4, last_state), [9, 195, 255])
+    assert np.array_equal(get_cell_center_col(env, 7,6, last_state), [9, 195, 255])
 
 def get_cell_center_col(env, x, y, last_state):
     queue_width = env.renderer.queue_width
-    tile_size = (env.renderer.width - env.renderer.board_border) // env.board.width
-    cell = np.array([x*tile_size + queue_width, y * tile_size]) + env.renderer.board_border // 2
-    center = np.array([cell[0] + tile_size // 2, cell[1] + tile_size // 2])
+    tile_size = env.renderer.tile_size
+    centering_vert = (5-env.board.height)/2 if env.board.height < 5 else 0
+    #cell = np.array([x*tile_size + queue_width, y * tile_size]) + env.renderer.board_border // 2
+    cell = np.array([x*tile_size + queue_width, (y + centering_vert) * tile_size]) + env.renderer.board_border
+    center = np.array([int(cell[0] + tile_size // 2), int(cell[1] + tile_size // 2)])
+    print("center = ", center)
     return last_state[center[1]][center[0]]
+    #return last_state[center[0]][center[1]]
 
 def diff_board_size(steps=100, render_gif=False, width=10, height=7, **kwargs):
     env = gym.make("PipeDream-v0", width=width, height=height, **kwargs)
@@ -84,8 +92,8 @@ def test_3x10_board(render_gif=False, width=3, height=10):
 def test_10x3_board(render_gif=False, width=10, height=3):
     diff_board_size(render_gif=render_gif, width=width, height=height)
 
-def test_pipe_capacity_10(render_gif=False):
-    test_working_loop(pipe_capacity=10, render_fps=8, render_gif=render_gif)
+def test_pipe_capacity_10(render_gif=False, **kwargs):
+    test_working_loop(pipe_capacity=10, render_gif=render_gif, **kwargs)
 
 def test_pipe_capacity_2(render_gif=False):
     test_working_loop(pipe_capacity=2, render_gif=render_gif)
@@ -119,21 +127,22 @@ if __name__=="__main__":
     #get_gif(test_20x20_board, "test_20x20_board.gif")
     #get_gif(test_minimum_3x3_board, "test_min_3x3_board.gif")
 
-    test_3x3_board()
-    diff_board_size(width=4, height=4)
-    diff_board_size(width=2, height=2)
-    test_5x5_board()
-    test_20x20_board(window_size=1200)
-    test_10x3_board()
-    test_3x10_board()
+    #test_3x3_board()
+    #diff_board_size(width=4, height=4)
+    #diff_board_size(width=2, height=2)
+    #test_5x5_board()
+    #test_20x20_board(window_size=1200)
+    #test_10x3_board()
+    #test_3x10_board()
 
-    test_3x3_board()
-    test_3x3_board(window_size=1200)
-    test_3x3_board(window_size=400)
+    #test_3x3_board()
+    #test_3x3_board(window_size=1200)
+    #test_3x3_board(window_size=400)
 
     #test_pipe_capacity_10()
 
-    #test_working_loop(render_fps=8)
+    test_working_loop(render_fps=4)
+    test_working_loop(render_fps=8)
     #print("Starting capacity 4 test")
     #test_pipe_capacity_4()
     #print("Starting capacity 3 test")
