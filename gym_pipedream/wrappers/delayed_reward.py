@@ -7,5 +7,7 @@ class DelayedRewardWrapper(gym.Wrapper):
     def step(self, action):
         obs, _, done, info = self.env.step(action)
         # if new pipe filled then reward = 1 else 0: (int(True) = 1)
-        reward = int(info['pipe_filled'])
+        reward = -10 if done else int(info['pipe_filled'])
         return obs, reward, done, info
+    def close(self):
+        self.env.close()
