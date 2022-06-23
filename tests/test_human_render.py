@@ -120,6 +120,9 @@ def get_gif(func, gif_name):
     subprocess.call(command_list, cwd=directory)
     for filename in files:
         os.remove(filename)
+    
+    command_list2 = ["mv", gif_name, "../images/"]
+    subprocess.call(command_list2, cwd=directory)
 
 
 if __name__=="__main__":

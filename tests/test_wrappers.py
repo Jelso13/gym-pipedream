@@ -18,7 +18,6 @@ def core_wrappers(wrapper, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pi
 
     total_reward = 0
 
-    w,h = [env.board.width, env.board.height]
     for i in range(100):
         if i in range(len(actions)):
             action = actions[i]
@@ -32,11 +31,11 @@ def core_wrappers(wrapper, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pi
             print("Game Over!")
             break
     print("total reward = ", total_reward)
-    assert total_reward == 7
-    return env
+    return total_reward
 
 def test_delayed_reward():
-    core_wrappers(DelayedRewardWrapper)
+    total_reward = core_wrappers(DelayedRewardWrapper)
+    assert total_reward == -3
 
 
 if __name__ == "__main__":

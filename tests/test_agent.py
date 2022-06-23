@@ -163,12 +163,36 @@ def test_pipe_capacity_2():
 def test_pipe_capacity_1():
     core_test_with_water_loop(pipe_capacity=1)
 
-#def test_cross_half_filled_replace():
-#
-#    raise NotImplementedError
+def test_default_reward(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
+    random.seed(0)
+    env = PipeDreamEnv(render_mode="ascii", pipe_capacity=pipe_capacity)
+    state = env.reset()
+    env.render()
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.current_tile = env.next_tiles[0]
+    total_reward = 0
+    for i in range(100):
+        if i == 3:
+            random.seed(1)
+        if i in range(len(actions)):
+            action = actions[i]
+        else:
+            #action = env.action_space.sample()
+            action = [random.randint(0,5), random.randint(0,4)]
+        state, reward, done, info = env.step(action)
+        print("reward = ", reward)
+        total_reward += reward
+        print("total_reward = ", total_reward)
+        env.render()
+        if done:
+            print("Game Over!")
+            break
+    print("total_reward = ", total_reward)
+    assert total_reward == 29
 
 if __name__=="__main__":
-    test_random_agent()
+    test_default_reward()
+    #test_random_agent()
     #test_cross_pipe_water()
     #test_water_pipe_nonreplaceable()
     #test_tap_nonreplaceable()
