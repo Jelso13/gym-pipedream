@@ -19,7 +19,7 @@ ENV_DEFAULTS = {
 
 
 ENCODE_TILE = {
-    "floor":             0,
+    "floor":            0,
     "vertical":         1,
     "horizontal":       2,
     "cross":            3,

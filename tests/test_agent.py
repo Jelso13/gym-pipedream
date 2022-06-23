@@ -13,9 +13,10 @@ def test_random_agent(steps=100):
         print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
-        print(reward)
+        print("reward = ", reward)
         if done:
             break
+    print("state =", state)
 
 def core_test_with_water_loop(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
     random.seed(0)
@@ -167,11 +168,11 @@ def test_pipe_capacity_1():
 #    raise NotImplementedError
 
 if __name__=="__main__":
-    #test_random_agent()
+    test_random_agent()
     #test_cross_pipe_water()
     #test_water_pipe_nonreplaceable()
     #test_tap_nonreplaceable()
     #test_replaceable_empty_pipe()
-    test_partially_filled_pipes_nonreplaceable()
+    #test_partially_filled_pipes_nonreplaceable()
     #test_longer_fill_time()
     #test_pipe_capacity_3()

@@ -76,12 +76,12 @@ class PipeDreamEnv(gym.Env):
         pipe_filled, done = self.board.calc_next_state()
         #self.board.calc_next_state()
         next_state = self._get_observation()
-        reward = self._get_reward(pipe_filled)
-        info = self._get_info()
+        reward = self._get_reward()
+        info = self._get_info(pipe_filled)
 
         return next_state, reward, done, info
 
-    def render(self):
+    def render(self, mode="human"):
         if self.render_mode in ["human", "rgb_array"]:
             return self.renderer.render(self.board, self.next_tiles)
         else:
@@ -89,15 +89,19 @@ class PipeDreamEnv(gym.Env):
             print("")
 
     def _get_observation(self):
-        return {"board":[tile.get_encoding() for tile in self.board.get_tiles()], "current_tile": self.current_tile.get_encoding()}
+        return {
+            "board":[tile.get_encoding() for tile in self.board.get_tiles()],
+            "next_tile_queue": [tile.get_encoding()[0] for tile in self.next_tiles], 
+            "current_tile": self.current_tile.get_encoding()[0]
+        }
 
-    def _get_info(self):
-        return {"next_tile_queue": [tile.get_encoding() for tile in self.next_tiles]}
+    def _get_info(self, pipe_filled):
+        return {
+            "pipe_filled": pipe_filled
+            }
     
-    def _get_reward(self, pipe_filled=False):
-        if pipe_filled:
-            return 1
-        return 0
+    def _get_reward(self):
+        return 1
 
     def set_board_position(self, loc, obj):
         self.board[loc[1]*self.width + loc[0]] = obj
