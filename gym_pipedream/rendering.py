@@ -72,7 +72,9 @@ class Renderer:
                 self.window = pygame.display.set_mode((self.width, self.height)) #, pygame.RESIZABLE)
                 self.window.fill((195, 195, 195))
             elif mode == "rgb_array":
-                self.window = pygame.Surface((self.width, self.height))
+                #self.window = pygame.Surface((self.width, self.height))
+                self.window = pygame.display.set_mode((self.width, self.height))
+                self.window.fill((195, 195, 195))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 

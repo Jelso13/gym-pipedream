@@ -3,24 +3,47 @@ from gym_pipedream.grid_elements import *
 from gym_pipedream.envs.pipedream_env import PipeDreamEnv
 from gym_pipedream.wrappers import DelayedRewardWrapper
 from gym_pipedream.wrappers import ImageObservation
+from gym_pipedream.wrappers import GrayScaleObservation
 import random
+import numpy as np
+import matplotlib.pyplot as plt
+
+from gym_pipedream.wrappers.gray_scale_observation import GrayScaleObservation
+
+def random_wrapper_test(wrappers=None):
+
+    env = gym.make("PipeDream-v0")
+    if wrappers is not None:
+        for wrapper in wrappers:
+            env = wrapper(env)
+    env.reset()
+    total_reward = 0
+    for e in range(100):
+        action = env.action_space.sample()
+        state, reward, done, info = env.step(action)
+        total_reward += reward
+        env.render()
+        if done:
+            break
+    env.close()
+    return total_reward, state, reward, done, info
 
 
-def core_wrappers(wrapper=None, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
+def core_wrappers(wrappers=None, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
     random.seed(0)
     env = gym.make("PipeDream-v0", render_mode="human", pipe_capacity=pipe_capacity)
 
-    if wrapper is not None:
-        env = wrapper(env)
+    if wrappers is not None:
+        for wrapper in wrappers:
+            env = wrapper(env)
 
     state = env.reset()
     #env.render()
-    if wrapper is not None:
-        env.env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
-        env.env.current_tile = env.next_tiles[0]
-    else:  
-        env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
-        env.current_tile = env.next_tiles[0]
+    x = env
+    while hasattr(x, "env"):
+        x = x.env
+    x.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    x.current_tile = env.next_tiles[0]
 
     total_reward = 0
 
@@ -38,16 +61,16 @@ def core_wrappers(wrapper=None, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]
     env.close()
     return total_reward, state, reward, done, info
 
-def test_delayed_reward():
-    total_reward, state, reward, done, info = core_wrappers(DelayedRewardWrapper)
+def test_delayed_reward(test_bed = core_wrappers):
+    total_reward, state, reward, done, info = test_bed([DelayedRewardWrapper])
     print("state = ", state)
     print("reward = ", reward)
     print("done = ", done)
     print("info = ", info, end="\n\n")
     assert total_reward == -3
 
-def test_default_reward():
-    total_reward, state, reward, done, info = core_wrappers()
+def test_default_reward(test_bed = core_wrappers):
+    total_reward, state, reward, done, info = test_bed()
     print("state = ", state)
     print("reward = ", reward)
     print("done = ", done)
@@ -55,15 +78,32 @@ def test_default_reward():
     print(total_reward, end="\n\n")
     assert total_reward == 29
 
-def test_image_state():
-    total_reward, state, reward, done, info = core_wrappers(ImageObservation)
+def test_image_state(test_bed = core_wrappers):
+    total_reward, state, reward, done, info = test_bed([ImageObservation])
     print("state = ", state.shape)
     print("reward = ", reward)
     print("done = ", done)
     print("info = ", info, end="\n\n")
+    img = np.array(state, dtype=int)
+    plt.imshow(img)
+    plt.show()
 
+def test_image_grayscale_state(test_bed = core_wrappers):
+    #total_reward, state, reward, done, info = test_bed([ImageObservation, GrayScaleObservation])
+    total_reward, state, reward, done, info = test_bed([GrayScaleObservation])
+    print("state = ", state.shape)
+    print("reward = ", reward)
+    print("done = ", done)
+    print("info = ", info, end="\n\n")
+    img = np.array(state, dtype=int)
+    plt.imshow(img, cmap="gray")
+    plt.show()
 
 if __name__ == "__main__":
     test_default_reward()
     test_delayed_reward()
     test_image_state()
+    test_image_grayscale_state()
+    
+    # test to make sure that there are no layered requirements between applications of wrappers
+    #test_image_grayscale_state(random_wrapper_test)
