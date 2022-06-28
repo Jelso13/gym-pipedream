@@ -36,7 +36,6 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
         else:
             action = [random.randrange(0, 6) for i in range(2)]
         state, reward, done, info = env.step(action)
-        env.render()
         if render_gif:
             pygame.image.save(env.renderer.window, "temp{}.png".format(i))
         if done:
@@ -59,7 +58,7 @@ def get_cell_center_col(env, x, y, last_state):
     #cell = np.array([x*tile_size + queue_width, y * tile_size]) + env.renderer.board_border // 2
     cell = np.array([x*tile_size + queue_width, (y + centering_vert) * tile_size]) + env.renderer.board_border
     center = np.array([int(cell[0] + tile_size // 2), int(cell[1] + tile_size // 2)])
-    print("center = ", center)
+    #print("center = ", center)
     return last_state[center[1]][center[0]]
     #return last_state[center[0]][center[1]]
 
@@ -124,8 +123,12 @@ def get_gif(func, gif_name):
     command_list2 = ["mv", gif_name, "../images/"]
     subprocess.call(command_list2, cwd=directory)
 
+def test_rgb_array():
+    test_working_loop(render_mode="rgb_array")
+
 
 if __name__=="__main__":
+    test_rgb_array()
     #get_gif(test_working_loop, "test_working_loop.gif")
     #get_gif(test_20x20_board, "test_20x20_board.gif")
     #get_gif(test_minimum_3x3_board, "test_min_3x3_board.gif")
@@ -144,8 +147,8 @@ if __name__=="__main__":
 
     #test_pipe_capacity_10()
 
-    test_working_loop(render_fps=4)
-    test_working_loop(render_fps=8)
+    #test_working_loop(render_fps=4)
+    #test_working_loop(render_fps=8)
     #print("Starting capacity 4 test")
     #test_pipe_capacity_4()
     #print("Starting capacity 3 test")

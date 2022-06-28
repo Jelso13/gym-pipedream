@@ -25,7 +25,7 @@ PIPE_IMG = {
 }
 
 class Renderer:
-    def __init__(self, window_size=512, render_fps=4):
+    def __init__(self, window_size=512, render_fps=4, render_mode="human"):
         self.window_size = window_size
         self.render_fps = render_fps
         pygame.init()
@@ -33,7 +33,7 @@ class Renderer:
         self.window = None
         self.clock = pygame.time.Clock()
         self.board = None
-        self.render_mode = "human"
+        self.render_mode = render_mode
         self.width = None
         self.height = None
 
@@ -59,19 +59,20 @@ class Renderer:
     self.height = board_border * 2 + tile_size * board.height
     self.width = board_border * 2 + tile_size * board.width + queue_width
     """
-    def render(self, board, next_tiles, interpolate=True):
+    def render(self, board, next_tiles, mode=None, interpolate=True):
+        mode = self.render_mode if mode == None else mode
         if self.window is None:
             pygame.init()
             pygame.display.init()
             pygame.display.set_caption("Pipe Dream")
             self.refresh_values(board)
 
-            if self.render_mode == "human":
+            if mode == "human":
                 self.queue_tile_size = self.tile_size
                 self.window = pygame.display.set_mode((self.width, self.height)) #, pygame.RESIZABLE)
                 self.window.fill((195, 195, 195))
-            elif self.render_mode == "rgb_array":
-                self.window = pygame.Surface(self.window_size)
+            elif mode == "rgb_array":
+                self.window = pygame.Surface((self.width, self.height))
         if self.clock is None:
             self.clock = pygame.time.Clock()
 
@@ -135,7 +136,7 @@ class Renderer:
                 pygame.transform.scale(PIPE_IMG[tile.type], (queue_tile_size, queue_tile_size)),
                 cell
             )
-        if self.render_mode == "human":
+        if mode == "human":
             pygame.event.pump()
             pygame.display.update()
             # handle framerate

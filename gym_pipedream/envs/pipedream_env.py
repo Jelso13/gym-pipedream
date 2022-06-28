@@ -29,8 +29,8 @@ class PipeDreamEnv(gym.Env):
         
 
         # handle the pygame render if render mode is human
-        if self.render_mode == "human":
-            self.renderer = Renderer(self.window_size, self.render_fps)
+        if self.render_mode in ["human", "rgb_array"]:
+            self.renderer = Renderer(self.window_size, self.render_fps, render_mode=self.render_mode)
         # Potentially include a curses rendering **
 
     def reset(self, seed=0, return_info=False, options=None):
@@ -82,9 +82,11 @@ class PipeDreamEnv(gym.Env):
 
         return next_state, reward, done, info
 
-    def render(self, mode="human"):
-        if self.render_mode in ["human", "rgb_array"]:
-            return self.renderer.render(self.board, self.next_tiles)
+    def render(self, mode=None):
+        if mode == None:
+            mode = self.render_mode
+        if mode in ["human", "rgb_array"]:
+            return self.renderer.render(self.board, self.next_tiles, mode=mode)
         else:
             print(self.board)
             print("")
