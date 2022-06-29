@@ -82,11 +82,11 @@ class PipeDreamEnv(gym.Env):
 
         return next_state, reward, done, info
 
-    def render(self, mode=None):
+    def render(self, mode=None, simplified=False):
         if mode == None:
             mode = self.render_mode
         if mode in ["human", "rgb_array"]:
-            return self.renderer.render(self.board, self.next_tiles, mode=mode)
+            return self.renderer.render(self.board, self.next_tiles, mode=mode, simplified=simplified)
         else:
             print(self.board)
             print("")

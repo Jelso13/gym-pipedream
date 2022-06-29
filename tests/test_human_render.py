@@ -27,6 +27,7 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
     env = gym.make("PipeDream-v0", **kwargs)
     state = env.reset()
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.next_tiles[1].state2 = env.pipe_capacity
     actions = [[7,6], [7,5], [7,4], [8,4], [8,5], [6,5]]
     env.current_tile = env.next_tiles[0]
     for i in range(100):
@@ -35,6 +36,7 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
             action = actions[i]
         else:
             action = [random.randrange(0, 6) for i in range(2)]
+        #env.render()
         state, reward, done, info = env.step(action)
         if render_gif:
             pygame.image.save(env.renderer.window, "temp{}.png".format(i))
@@ -50,6 +52,12 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
     assert np.array_equal(get_cell_center_col(env, 8,4, last_state), [9, 195, 255])
     assert np.array_equal(get_cell_center_col(env, 7,4, last_state), [9, 195, 255])
     assert np.array_equal(get_cell_center_col(env, 7,6, last_state), [9, 195, 255])
+
+    assert np.array_equal(get_cell_center_col(env, 7,5-0.5, last_state), [9, 195, 255])
+    import matplotlib.pyplot as plt
+    img = np.array(last_state, dtype=int)
+    plt.imshow(img)
+    plt.show()
 
 def get_cell_center_col(env, x, y, last_state):
     queue_width = env.renderer.queue_width
@@ -128,7 +136,7 @@ def test_rgb_array():
 
 
 if __name__=="__main__":
-    test_rgb_array()
+    #test_rgb_array()
     #get_gif(test_working_loop, "test_working_loop.gif")
     #get_gif(test_20x20_board, "test_20x20_board.gif")
     #get_gif(test_minimum_3x3_board, "test_min_3x3_board.gif")
@@ -146,6 +154,7 @@ if __name__=="__main__":
     #test_3x3_board(window_size=400)
 
     #test_pipe_capacity_10()
+    test_working_loop(render_fps=1)
 
     #test_working_loop(render_fps=4)
     #test_working_loop(render_fps=8)

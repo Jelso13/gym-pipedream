@@ -4,6 +4,7 @@ from gym_pipedream.envs.pipedream_env import PipeDreamEnv
 from gym_pipedream.wrappers import DelayedRewardWrapper
 from gym_pipedream.wrappers import ImageObservation
 from gym_pipedream.wrappers import GrayScaleObservation
+from gym_pipedream.wrappers import SimplifiedImageObservation
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -99,11 +100,22 @@ def test_image_grayscale_state(test_bed = core_wrappers):
     plt.imshow(img, cmap="gray")
     plt.show()
 
+def test_simplified_state(test_bed = core_wrappers):
+    total_reward, state, reward, done, info = test_bed([SimplifiedImageObservation])
+    print("state = ", state.shape)
+    print("reward = ", reward)
+    print("done = ", done)
+    print("info = ", info, end="\n\n")
+    img = np.array(state, dtype=int)
+    plt.imshow(img)
+    plt.show()
+
 if __name__ == "__main__":
-    test_default_reward()
-    test_delayed_reward()
-    test_image_state()
-    test_image_grayscale_state()
+    #test_default_reward()
+    #test_delayed_reward()
+    #test_image_state()
+    #test_image_grayscale_state()
+    test_simplified_state()
     
     # test to make sure that there are no layered requirements between applications of wrappers
     #test_image_grayscale_state(random_wrapper_test)

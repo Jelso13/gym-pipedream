@@ -59,7 +59,7 @@ class Renderer:
     self.height = board_border * 2 + tile_size * board.height
     self.width = board_border * 2 + tile_size * board.width + queue_width
     """
-    def render(self, board, next_tiles, mode=None, interpolate=True):
+    def render(self, board, next_tiles, mode=None, simplified=False):
         mode = self.render_mode if mode == None else mode
         if self.window is None:
             pygame.init()
@@ -80,18 +80,32 @@ class Renderer:
 
         for y in range(0, board.height):
             for x in range(0, board.width):
+
+                tile = board.tiles[y * board.width + x] 
+                if x == 7 and y == 5:
+                    print("cross tile states = ", tile.state, tile.state2)
+                elif x==7 and y==4:
+                    print("The other tile state = ", tile.state, tile.state2)
+
                 tile = board.tiles[y * board.width + x] 
                 centering_vert = (5-board.height)/2 if board.height < 5 else 0
                 cell = np.array([x*self.tile_size + self.queue_width, (y + centering_vert) * self.tile_size]) + self.board_border
                 if tile.type[:5] == "start":
                     for k in tile.transition.keys():
                         self.fill_pipe2(0.0, k, tile.transition[k], cell, self.tile_size, (0,0,0))
-                if tile.state == 0: # if waterlogged
+                if tile.state == 0 and (tile.state2 == 0 or tile.state2 == -1): # if waterlogged
                     color = (9, 195, 255)
                     filled_ratio = 1
                     for k in tile.transition.keys():
+                        #if tile.water_entrance == k:
+                        self.fill_pipe2(0, k, tile.transition[k], cell, self.tile_size, color)
+                elif tile.state == 0 and tile.state2 > 0: # if half the cross is full
+                    color=(9,195,255)
+                    #color=(255,0,0)
+                    for k in tile.transition.keys():
                         if tile.water_entrance == k:
                             self.fill_pipe2(0, k, tile.transition[k], cell, self.tile_size, color)
+
                 elif tile.state == board.pipe_capacity or not tile.can_receive_water: # if empty
                     if tile.can_receive_water and tile.state2 != 0:
                         color = (0,0,0)
@@ -99,11 +113,22 @@ class Renderer:
                         for k in tile.transition.keys():
                             self.fill_pipe2(0.0, k, tile.transition[k], cell, self.tile_size, color)
                 else: # if being filled 
+                    if x==7 and y == 5:
+                        print("HIT HERE")
                     color = (9, 195, 255)
                     filled_ratio = (tile.state)/board.pipe_capacity
                     current_water = board.tiles[board.current_water_position]
                     destination = current_water.transition[current_water.water_entrance]
                     origin = current_water.water_entrance
+                    #if tile.state == 0 and tile.state2 == board.pipe_capacity:
+                    #    tile.state = board.pipe_capacity
+                    #    tile.state2 = 0
+                    if x == 7 and y == 5:
+                        print("origin = ", origin)
+                        print("destination = ", destination)
+                        if destination == "right":
+                            print("current_water = ", current_water)
+                            print("board.current_water_position = ", board.current_water_position)
                     self.fill_pipe2(filled_ratio, origin, destination, cell, self.tile_size, color)
 
                 tile_type = tile.type

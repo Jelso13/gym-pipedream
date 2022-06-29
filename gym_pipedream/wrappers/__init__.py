@@ -1,3 +1,4 @@
 from gym_pipedream.wrappers.delayed_reward import DelayedRewardWrapper
 from gym_pipedream.wrappers.image_observation import ImageObservation
 from gym_pipedream.wrappers.gray_scale_observation import GrayScaleObservation
+from gym_pipedream.wrappers.simplified_image_observation import SimplifiedImageObservation
