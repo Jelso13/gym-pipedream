@@ -36,7 +36,7 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
             action = actions[i]
         else:
             action = [random.randrange(0, 6) for i in range(2)]
-        #env.render()
+        env.render()
         state, reward, done, info = env.step(action)
         if render_gif:
             pygame.image.save(env.renderer.window, "temp{}.png".format(i))

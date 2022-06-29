@@ -75,7 +75,8 @@ class Renderer:
                 self.window.fill((195, 195, 195))
             elif mode == "rgb_array":
                 #self.window = pygame.Surface((self.width, self.height))
-                self.window = pygame.display.set_mode((self.width, self.height))
+                #self.window = pygame.display.set_mode((self.width, self.height))
+                self.window = pygame.Surface((self.width, self.height))
                 self.window.fill((195, 195, 195))
         if self.clock is None:
             self.clock = pygame.time.Clock()
@@ -100,7 +101,6 @@ class Renderer:
                     for k in tile.transition.keys():
                         if tile.water_entrance == k:
                             self.fill_pipe(0, k, tile.transition[k], cell, self.tile_size, color)
-
                 elif tile.state == board.pipe_capacity or not tile.can_receive_water: # if empty
                     if tile.can_receive_water and tile.state2 != 0:
                         color = (0,0,0)
@@ -177,7 +177,8 @@ class Renderer:
             self.width = (board.width) * 3
             self.height = board.height * 3
 
-            self.window = pygame.display.set_mode((1100, 700)) #, pygame.RESIZABLE)
+            #self.window = pygame.display.set_mode((1100, 700)) #, pygame.RESIZABLE)
+            self.window = pygame.Surface((1100, 700))
             self.screen = pygame.Surface((self.width, self.height))
             
         if self.clock is None:
@@ -223,24 +224,34 @@ class Renderer:
                     for t in tile.transition.keys():
                         self.screen.set_at((adjacents[t]), blue)
                     self.screen.set_at((tile_center), blue)
+                elif tile.state == 0 and tile.state2 > 0: # if half the cross is full
+                    for k in tile.transition.keys():
+                        if tile.water_entrance == k:
+                            self.screen.set_at((adjacents[k]), blue)
+                            self.screen.set_at((tile_center), blue)
+                            self.screen.set_at((adjacents[tile.transition[k]]), blue)
                 elif tile == board.tiles[board.current_water_position]: # filling
-                    # fill the pipes by thirds - <= 1/3 filled, middle third filled and final third filled
+
                     first_bound = (board.pipe_capacity) / 3.0
                     second_bound = first_bound * 2.0
                     current_water = board.tiles[board.current_water_position]
                     destination = current_water.transition[current_water.water_entrance]
                     origin = current_water.water_entrance
+                    
+                    if tile.state2 == 0: # filling an already half full cross
+                        for k in tile.transition.keys():
+                            if k not in [origin, destination]:
+                                self.screen.set_at((adjacents[k]), blue)
+                                self.screen.set_at((tile_center), blue)
+                                self.screen.set_at((adjacents[tile.transition[k]]), blue)
 
                     remaining = board.pipe_capacity - tile.state
-                    print("\tremaining = ", remaining)
                     if float(remaining) >= 0: # Hit every time >= 0
-                        print("hit 1")
-                        self.screen.set_at((adjacents[origin]), blue)
+                        if not tile.type[:5] == "start":
+                            self.screen.set_at((adjacents[origin]), blue)
                     if float(remaining) >= first_bound: # hit if above first bound
-                        print("hit 2")
                         self.screen.set_at((tile_center), blue)
                     if float(remaining) >= second_bound:  # hit if above second bound
-                        print("hit 3")
                         self.screen.set_at((adjacents[destination]), blue)
 
         if mode == "human":
@@ -250,6 +261,7 @@ class Renderer:
             # handle framerate
             self.clock.tick(self.render_fps)
         else:  # rgb_array
+            self.window.blit(pygame.transform.scale(self.screen, self.window.get_rect().size), (0,0))
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
             )

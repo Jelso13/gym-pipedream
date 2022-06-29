@@ -8,5 +8,5 @@ class SimplifiedImageObservation(gym.ObservationWrapper):
 
     def observation(self, obs):
         #obs = self.env.render(mode="rgb_array", simplified=True)
-        obs = self.env.render(mode="human", simplified=True)
+        obs = self.env.render(mode="rgb_array", simplified=True)
         return obs
