@@ -101,7 +101,7 @@ def test_image_grayscale_state(test_bed = core_wrappers):
     plt.show()
 
 def test_simplified_state(test_bed = core_wrappers):
-    total_reward, state, reward, done, info = test_bed([SimplifiedImageObservation])
+    total_reward, state, reward, done, info = test_bed([SimplifiedImageObservation], pipe_capacity = 3)
     print("state = ", state.shape)
     print("reward = ", reward)
     print("done = ", done)

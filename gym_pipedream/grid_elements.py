@@ -85,7 +85,6 @@ class Floor(Tile):
         self.state = -1
         super().__init__(self.type, self.state)
 
-
 class Pipe(Tile):
     def __init__(self, type, state=ENV_DEFAULTS["pipe_capacity"]):
         self.state = state

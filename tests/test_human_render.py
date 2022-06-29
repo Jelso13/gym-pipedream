@@ -53,12 +53,6 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
     assert np.array_equal(get_cell_center_col(env, 7,4, last_state), [9, 195, 255])
     assert np.array_equal(get_cell_center_col(env, 7,6, last_state), [9, 195, 255])
 
-    assert np.array_equal(get_cell_center_col(env, 7,5-0.5, last_state), [9, 195, 255])
-    import matplotlib.pyplot as plt
-    img = np.array(last_state, dtype=int)
-    plt.imshow(img)
-    plt.show()
-
 def get_cell_center_col(env, x, y, last_state):
     queue_width = env.renderer.queue_width
     tile_size = env.renderer.tile_size
