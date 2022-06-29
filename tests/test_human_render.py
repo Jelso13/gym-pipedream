@@ -107,7 +107,7 @@ def get_gif(func, gif_name):
     num_frames = 200
     filename_list = [os.path.join(directory, "temp" + str(n) + ".png") for n in range(num_frames)]
 
-    func(200, render_gif=True)
+    func(render_gif=True)
 
     anim_seconds = 5
     # glob the files with the specified regex sorted by time created

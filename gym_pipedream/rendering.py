@@ -36,6 +36,7 @@ class Renderer:
         self.render_mode = render_mode
         self.width = None
         self.height = None
+        self.simplified_queue_width = 4
 
     """
     max_width = 80% * screen width
@@ -189,13 +190,13 @@ class Renderer:
         gray = (195, 195, 195)
         green = (0, 255, 0)
         black = (0,0,0)
-        self.screen.fill(black) 
+        self.screen.fill(black)
 
         pos_states = []
         for x in range(board.width):
             for y in range(board.height):
                 tile = board.tiles[y*board.width + x]
-                tile_center = np.array([x*3+1, y*3+1])
+                tile_center = np.array([x*3+1+self.simplified_queue_width, y*3+1])
                 if not tile.can_receive_water:
                     for i in range(-1,2):
                         for j in range(-1,2):
@@ -253,6 +254,26 @@ class Renderer:
                         self.screen.set_at((tile_center), blue)
                     if float(remaining) >= second_bound:  # hit if above second bound
                         self.screen.set_at((adjacents[destination]), blue)
+        # render the queue
+        for position, tile in enumerate(reversed(next_tiles[:5])):
+            tile_center = np.array([1, position*3+1])
+            corners = [
+                tile_center - 1,
+                tile_center + 1,
+                tile_center + np.array([1,-1]),
+                tile_center + np.array([-1,1]),
+            ]
+            adjacents = {
+                "up":   tile_center + np.array([0, -1]),
+                "right":   tile_center + np.array([1, 0]),
+                "down":   tile_center + np.array([0, 1]),
+                "left":   tile_center + np.array([-1, 0]),
+            }
+            for corner in corners:
+                self.screen.set_at((corner), gray)
+            for adj in adjacents.keys():
+                if adj not in tile.transition.keys():
+                    self.screen.set_at((adjacents[adj]), gray)
 
         if mode == "human":
             self.window.blit(pygame.transform.scale(self.screen, self.window.get_rect().size), (0,0))
