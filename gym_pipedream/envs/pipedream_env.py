@@ -8,6 +8,7 @@ from gym_pipedream.rendering import Renderer
 
 
 class PipeDreamEnv(gym.Env):
+    metadata = {"render_modes": ["human", "rgb_array", "ascii"], "render_fps": 4}
 
     def __init__(self, **kwargs):
         for key in ENV_DEFAULTS.keys():
@@ -22,10 +23,17 @@ class PipeDreamEnv(gym.Env):
         self.current_tile = None
 
         # observation space consists of grid representing every square
-        self.observation_space = spaces.Box(low=self.obs_low, high=self.obs_high, shape=(self.width, self.height), dtype=np.int8)
+        #self.observation_space = spaces.Box(low=self.obs_low, high=self.obs_high, shape=(self.width, self.height), dtype=np.int8)
+        self.observation_space = spaces.Box(low=self.obs_low, high=self.obs_high, shape=(self.width * self.height + 1, 2), dtype=np.int8)
         # one action for each position on the grid
         self.action_space = spaces.MultiDiscrete([self.width, self.height])
         self.rewards = self.rewards
+
+        if "obs_mode" not in kwargs.keys():
+            self.obs_mode = "default"
+        else:
+            self.obs_mode = kwargs["obs_mode"]
+
         
 
         # handle the pygame render if render mode is human
@@ -66,7 +74,7 @@ class PipeDreamEnv(gym.Env):
             return all
         """
 
-        # set the action if possible  
+        # set the action if possible
         if self.board.set_tile(action, self.current_tile):
             self.next_tiles.pop(0)
             self.next_tiles.append(random.choice(PLAYING_TILES)(state=self.pipe_capacity))
@@ -92,11 +100,42 @@ class PipeDreamEnv(gym.Env):
             print("")
 
     def _get_observation(self):
-        return {
-            "board":[tile.get_encoding() for tile in self.board.get_tiles()],
-            "next_tile_queue": [tile.get_encoding()[0] for tile in self.next_tiles], 
-            "current_tile": self.current_tile.get_encoding()[0]
-        }
+        if self.obs_mode == "default":
+            x = np.array([np.array([0,0]) for i in range(len(self.board.get_tiles())+1)], dtype=np.int8)
+
+            #print("board tiles = ", self.board.get_tiles())
+            
+            for i in range(len(self.board.get_tiles())):
+                #print("len thing = ", len(self.board.get_tiles()))
+                #print("encoding = ", self.board.get_tiles()[i].get_encoding())
+                x[i][0], x[i][1] = self.board.get_tiles()[i].get_encoding()
+
+            x[-1][0], x[-1][1] = self.current_tile.get_encoding()
+            #print("x: ", x.shape)
+            #print("obs shape: ", self.observation_space.shape)
+
+            #return np.array([tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]])
+            tmp = [tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]]
+            #print("tmp shape = ", len(tmp))
+            #print("tmp = ", tmp)
+            tmp = [np.array([[tile.get_encoding()[0],tile.get_encoding()[1]]]) for tile in self.board.get_tiles()]
+            #print("new temp = ", tmp)
+            tmp = tmp + [np.array([self.current_tile.get_encoding()[0], 0], dtype=np.int8)]
+            
+            #x = np.array(tmp, dtype=np.int8)
+            #x = np.array(tmp)
+            #print("x shape = ", x.shape)
+            #print("obs shape = ", self.observation_space.shape)
+            #if True:
+            #    return np.array([np.array([0,0]) for i in range(71)], dtype=np.int8)
+            #x.astype(np.int8)
+            return x
+        else:
+            return {
+                "board":[tile.get_encoding() for tile in self.board.get_tiles()],
+                "next_tile_queue": [tile.get_encoding()[0] for tile in self.next_tiles], 
+                "current_tile": self.current_tile.get_encoding()[0]
+            }
 
     def _get_info(self, pipe_filled):
         return {
@@ -110,7 +149,8 @@ class PipeDreamEnv(gym.Env):
         self.board[loc[1]*self.width + loc[0]] = obj
 
     def close(self):
-        self.renderer.close()
+        if self.render_mode in ["human", "rgb_array"]:
+            self.renderer.close()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,12 @@
 import random
+import numpy as np
 
 ENV_DEFAULTS = {
     "render_mode":      "human", 
-    "width":            10,
-    "height":           7,
+    #"width":            10,
+    #"height":           7,
+    "width":            5,
+    "height":           3,
     "pipe_capacity":    5,
     "rewards":          {
         "spill": -10,
@@ -68,9 +71,9 @@ class Tile:
 
     def get_encoding(self):
         if isinstance(self.state, str):
-            return (ENCODE_TILE[self.type], ENCODE_STATE[self.state])
+            return np.array([ENCODE_TILE[self.type], ENCODE_STATE[self.state]])
         else:
-            return (ENCODE_TILE[self.type], self.state)
+            return np.array([ENCODE_TILE[self.type], self.state])
 
 class Wall(Tile):
     def __init__(self):
