@@ -1,5 +1,5 @@
 import queue
-from tkinter import W
+#from tkinter import W
 import pygame
 import numpy as np
 import random

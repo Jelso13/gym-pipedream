@@ -36,7 +36,9 @@ def test_dqn():
     check_env(env)
 
     model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=100_000)
+    tsps = 1_000_000
+    model.learn(total_timesteps=tsps, progress_bar=True)
+    model.save("deepq_pipedream"+str(tsps))
 
     obs = env.reset()
     for i in range(1000):

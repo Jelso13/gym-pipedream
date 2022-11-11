@@ -1,0 +1,25 @@
+add layer for the state rather than dictionary
+
+how long you survive reward
+
+make the pipe centre with number
+
+3D state with type, state horiz, state vert
+
+agent doesnt know half filled cross cant be replaced
+
+rip out the action available for half filled cross pipe
+
+Pixel state observation
+
+add super simple board to solve
+
+fixed number of actions
+
+difficulty not linear with flow rate as delayed reward
+
+negative reward for loss
+
+reward for every step simple and no delayed reward
+
+write basic rl agent to solve simple pipedream env

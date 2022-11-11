@@ -43,6 +43,9 @@ class PipeDreamEnv(gym.Env):
 
     def reset(self, seed=0, return_info=False, options=None):
         #super().reset(seed=seed) # seed self.np_random
+        #self.seed = seed
+        #random.seed(0)
+        #np.random.seed(0)
 
         # Reset the board
         self.board.reset_board()
@@ -108,11 +111,22 @@ class PipeDreamEnv(gym.Env):
             for i in range(len(self.board.get_tiles())):
                 #print("len thing = ", len(self.board.get_tiles()))
                 #print("encoding = ", self.board.get_tiles()[i].get_encoding())
+                # if type(self.board.get_tiles()[i].get_encoding()[1]) != np.int8 or type(self.board.get_tiles()[i].get_encoding()[0]) != np.int8:
+                #     print(":ASJKHFLKJHASFLKASJHFLKASJFHLK")
+                #     print("type = ", type(self.board.get_tiles()[i].get_encoding()[0]))
                 x[i][0], x[i][1] = self.board.get_tiles()[i].get_encoding()
+                # if type(x[i][0]) != np.int8 or type(x[i][1]) != np.int8:
+                #     print("type for first: ", type(x[i][0]))
+                #     print("type for second: ", type(x[i][1]))
+                #     print("LLLLLLLLLLLLLLLLLLLLLLLLLL")
 
             x[-1][0], x[-1][1] = self.current_tile.get_encoding()
-            #print("x: ", x.shape)
-            #print("obs shape: ", self.observation_space.shape)
+
+            # print("type(x[-1][1]) = ", type(x[-1][1]))
+            # print("x: ", x.shape)
+            # print("obs shape: ", self.observation_space.shape)
+            # print("x type: ", type(x))
+            # print("obs type: ", type(self.observation_space))
 
             #return np.array([tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]])
             tmp = [tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]]

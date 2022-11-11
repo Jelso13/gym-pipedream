@@ -3,11 +3,10 @@ import numpy as np
 
 ENV_DEFAULTS = {
     "render_mode":      "human", 
-    #"width":            10,
-    #"height":           7,
-    "width":            5,
-    "height":           3,
-    "pipe_capacity":    5,
+    "width":            10,
+    "height":           7,
+    #"pipe_capacity":    7,
+    "pipe_capacity":    3,
     "rewards":          {
         "spill": -10,
         "new_pipe": 1
@@ -15,7 +14,7 @@ ENV_DEFAULTS = {
     "print_width":      50,
     "window_size":      600,
     "obs_low":          -2,
-    "obs_high":         10,
+    "obs_high":         15,
     "tile_queue_len":   5,
     "render_fps":       1,
 }
@@ -71,9 +70,9 @@ class Tile:
 
     def get_encoding(self):
         if isinstance(self.state, str):
-            return np.array([ENCODE_TILE[self.type], ENCODE_STATE[self.state]])
+            return np.array([ENCODE_TILE[self.type], ENCODE_STATE[self.state]], dtype=np.int8)
         else:
-            return np.array([ENCODE_TILE[self.type], self.state])
+            return np.array([ENCODE_TILE[self.type], self.state], dtype=np.int8)
 
 class Wall(Tile):
     def __init__(self):

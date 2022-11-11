@@ -2,3 +2,5 @@
 pipedream.code-workspace
 *.pyc
 gym_pipedream.egg-info/*
+deepq_pipedream*
+*.zip
