@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import gym_pipedream
 from gym_pipedream.grid_elements import *
 from gym_pipedream.envs.pipedream_env import PipeDreamEnv

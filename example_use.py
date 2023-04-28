@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import gym_pipedream
 from gym_pipedream.grid_elements import *
 from gym_pipedream.envs.pipedream_env import PipeDreamEnv
@@ -9,11 +9,6 @@ import random
 #from stable_baselines.deepq.policies import MlpPolicy
 #from stable_baselines import DQN
 
-# stable baselines 3
-from stable_baselines3 import PPO
-from stable_baselines3.common.env_checker import check_env
-
-
 def test_random_agent(steps=100):
     #env = gym.make("PipeDream-v0")
     env = gym.make("PipeDream-v1")
@@ -21,16 +16,19 @@ def test_random_agent(steps=100):
     #env.render()
     for e in range(steps):
         action = env.action_space.sample()
-        print("action = ", action)
+        #print("action = ", action)
         state, reward, done, info = env.step(action)
         env.render()
-        print("state = ", state)
-        print("reward = ", reward)
+        #print("state = ", state)
+        #print("reward = ", reward)
         if done:
             break
-    print("state =", state)
+    # print("state =", state)
 
 def test_dqn():
+    # stable baselines 3
+    from stable_baselines3 import PPO
+    from stable_baselines3.common.env_checker import check_env
 
     env = gym.make("PipeDream-v0", render_mode="human")
     check_env(env)
@@ -64,4 +62,4 @@ def test_dqn():
 
 if __name__=="__main__":
     #test_random_agent()
-    test_dqn()
+    test_random_agent()

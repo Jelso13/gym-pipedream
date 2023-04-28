@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 from . import ImageObservation
 
 class SimplifiedImageObservation(gym.ObservationWrapper):

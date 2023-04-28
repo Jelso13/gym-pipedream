@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 from gym_pipedream.grid_elements import *
 from gym_pipedream.envs.pipedream_env import PipeDreamEnv
 from gym_pipedream.wrappers import DelayedRewardWrapper
