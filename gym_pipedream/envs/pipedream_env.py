@@ -142,12 +142,12 @@ class PipeDreamEnv(gym.Env):
             # print("obs type: ", type(self.observation_space))
 
             #return np.array([tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]])
-            tmp = [tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]]
+            # tmp = [tile.get_encoding() for tile in self.board.get_tiles()]+[self.current_tile.get_encoding()[0]]
             #print("tmp shape = ", len(tmp))
             #print("tmp = ", tmp)
-            tmp = [np.array([[tile.get_encoding()[0],tile.get_encoding()[1]]]) for tile in self.board.get_tiles()]
+            # tmp = [np.array([[tile.get_encoding()[0],tile.get_encoding()[1]]]) for tile in self.board.get_tiles()]
             #print("new temp = ", tmp)
-            tmp = tmp + [np.array([self.current_tile.get_encoding()[0], 0], dtype=np.int8)]
+            # tmp = tmp + [np.array([self.current_tile.get_encoding()[0], 0], dtype=np.int8)]
             
             #x = np.array(tmp, dtype=np.int8)
             #x = np.array(tmp)
