@@ -209,7 +209,6 @@ class Board:
     def init_tap(self):
         tap_location = list(self.get_random_location())
         tap_direction = self.get_valid_tap_direction(tap_location)
-        print(tap_location, tap_direction)
         self.set_tile(tap_location, StartingPipe(direction=tap_direction))
         self.current_water_position = self._coords_to_index(tap_location)
 
