@@ -170,7 +170,7 @@ class PipeDreamEnv(gym.Env):
 if __name__ == "__main__":
     random.seed(0)
     #env = PipeDreamEnv(render_mode="human", window_size=900)
-    env = PipeDreamEnv(width=8, height=8, render_mode="human")
+    env = PipeDreamEnv(width=9, height=9, render_mode="human")
     #env = PipeDreamEnv(render_mode="ascii", window_size=600)
     state, info = env.reset()
     env.render()
@@ -197,9 +197,8 @@ if __name__ == "__main__":
         
         print("action = ", action)
         print("next tiles = ", [t.type for t in env.next_tiles])
-        print("start state = ", env.board.tiles[42].state)
-        state, reward, done, truncated, info = env.step(action)
-        print(state, reward, done, truncated, info)
+        print("start state = ", env.board.tiles[2].state)
+        state, reward, done, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")

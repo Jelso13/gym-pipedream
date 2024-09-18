@@ -1,8 +1,5 @@
-import queue
-#from tkinter import W
 import pygame
 import numpy as np
-import random
 import os
 
 #base_path = os.path.dirname(__file__)
