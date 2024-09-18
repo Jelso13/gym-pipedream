@@ -41,7 +41,7 @@ def core_wrappers(wrappers=None, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5
         for wrapper in wrappers:
             env = wrapper(env)
 
-    state = env.reset()
+    state, _ = env.reset()
     #env.render()
     x = env
     while hasattr(x, "env"):
@@ -56,7 +56,7 @@ def core_wrappers(wrappers=None, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5
             action = actions[i]
         else:
             action = [random.randint(0,5), random.randint(0,4)]
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         if render_gif:
             if wrappers[0]==GrayScaleObservation:
                 matplotlib.image.imsave("temp{}.png".format(i), state, cmap="gray")
