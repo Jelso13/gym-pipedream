@@ -5,7 +5,7 @@ from gym_pipedream.wrappers import DelayedRewardWrapper
 from gym_pipedream.wrappers import ImageObservation
 from gym_pipedream.wrappers import GrayScaleObservation
 from gym_pipedream.wrappers import SimplifiedImageObservation
-from test_human_render import get_gif
+# from test_human_render import get_gif
 import pygame
 import random
 import numpy as np
@@ -20,49 +20,47 @@ def random_wrapper_test(wrappers=None):
     if wrappers is not None:
         for wrapper in wrappers:
             env = wrapper(env)
-    env.reset()
+    env.reset(seed=0)
     total_reward = 0
     for e in range(100):
         action = env.action_space.sample()
         state, reward, done, info = env.step(action)
         total_reward += reward
-        env.render()
+
         if done:
             break
     env.close()
     return total_reward, state, reward, done, info
 
 
-def core_wrappers(wrappers=None, actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5, render_gif=False):
+def core_wrappers(wrappers=None, actions =  [[8, 5], [7, 5], [6, 5], [7, 4], [6, 6], [7, 6], [6, 4]], pipe_capacity=5, render_gif=False):
     random.seed(0)
     env = gym.make("PipeDream-v0", render_mode="human", pipe_capacity=pipe_capacity)
-
     if wrappers is not None:
         for wrapper in wrappers:
             env = wrapper(env)
+    state, _ = env.reset(seed=0)
+    env.render()
+    x = env.unwrapped
 
-    state, _ = env.reset()
-    #env.render()
-    x = env
-    while hasattr(x, "env"):
-        x = x.env
-    x.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    x.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), RightUpPipe(), LeftUpPipe(), HorizontalPipe()]
     x.current_tile = env.next_tiles[0]
 
     total_reward = 0
 
     for i in range(100):
-        if i in range(len(actions)):
+        if i < len(actions):
             action = actions[i]
         else:
             action = [random.randint(0,5), random.randint(0,4)]
         state, reward, done, truncated, info = env.step(action)
-        if render_gif:
-            if wrappers[0]==GrayScaleObservation:
-                matplotlib.image.imsave("temp{}.png".format(i), state, cmap="gray")
-                #pygame.image.save(env.renderer.window, "temp{}.png".format(i))
-            else:
-                matplotlib.image.imsave("temp{}.png".format(i), state)
+        env.render()
+        # if render_gif:
+        #     if wrappers[0]==GrayScaleObservation:
+        #         matplotlib.image.imsave("temp{}.png".format(i), state, cmap="gray")
+        #         #pygame.image.save(env.renderer.window, "temp{}.png".format(i))
+        #     else:
+        #         matplotlib.image.imsave("temp{}.png".format(i), state)
         total_reward += reward
         #env.render()
         if done:
@@ -77,7 +75,7 @@ def test_delayed_reward(test_bed = core_wrappers, render_gif=False):
     print("reward = ", reward)
     print("done = ", done)
     print("info = ", info, end="\n\n")
-    assert total_reward == -3
+    assert total_reward == -1
 
 def test_default_reward(test_bed = core_wrappers, render_gif=False):
     total_reward, state, reward, done, info = test_bed(render_gif=render_gif)
@@ -86,7 +84,7 @@ def test_default_reward(test_bed = core_wrappers, render_gif=False):
     print("done = ", done)
     print("info = ", info)
     print(total_reward, end="\n\n")
-    assert total_reward == 29
+    assert total_reward == 39
 
 def test_image_state(test_bed = core_wrappers, render_gif=False):
     total_reward, state, reward, done, info = test_bed([ImageObservation], render_gif=render_gif)
@@ -120,13 +118,13 @@ def test_simplified_state(test_bed = core_wrappers, render_gif=False):
     plt.show()
 
 if __name__ == "__main__":
-    #test_default_reward()
+    test_default_reward()
     #test_delayed_reward()
     #test_image_state()
     #test_image_grayscale_state()
-    get_gif(test_simplified_state, "simplified_observation.gif")
-    get_gif(test_image_grayscale_state, "grayscale_observation.gif")
-    get_gif(test_image_state, "image_observation.gif")
+    # get_gif(test_simplified_state, "simplified_observation.gif")
+    # get_gif(test_image_grayscale_state, "grayscale_observation.gif")
+    # get_gif(test_image_state, "image_observation.gif")
     
     # test to make sure that there are no layered requirements between applications of wrappers
     #test_image_grayscale_state(random_wrapper_test)
