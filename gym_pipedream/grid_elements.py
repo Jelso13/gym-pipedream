@@ -1,4 +1,3 @@
-import random
 import numpy as np
 
 ENV_DEFAULTS = {
@@ -163,21 +162,29 @@ class Board:
     Attributes:
         width:          the width of the board
         height:         the height of the board
-        print_style:    the style with which the board is rendered
         pipe_capacity:  the rate the water flows such that each step
                         the capacity remaining is decremented by 1.
                             pipe_capacity=4 means a new tile is filled
                             every 4 steps.
+        seed:           Pseudo random seed
+        print_style:    the style with which the board is rendered
+
     """
 
-    def __init__(self, width, height, pipe_capacity, print_style, print_width):
+    def __init__(self, width, height, pipe_capacity, seed, print_style, print_width):
         self.width = width
         self.height = height
+
         self.tiles = [Floor()] * self.width * self.height
         self.print_style=print_style
         self.current_water_position = None
         self.pipe_capacity = pipe_capacity
+        self.set_seed(seed)
         self.print_width = print_width
+
+    def set_seed(self, seed):
+        self.seed = seed
+        self.rng = np.random.default_rng(seed)
 
     def get_tiles(self):
         return self.tiles
@@ -202,6 +209,7 @@ class Board:
     def init_tap(self):
         tap_location = list(self.get_random_location())
         tap_direction = self.get_valid_tap_direction(tap_location)
+        print(tap_location, tap_direction)
         self.set_tile(tap_location, StartingPipe(direction=tap_direction))
         self.current_water_position = self._coords_to_index(tap_location)
 
@@ -294,15 +302,15 @@ class Board:
             directions.pop(1)
         if y == 0:
             directions.pop(0)
-        if return_directions: return (random.choice(directions), directions)
-        return random.choice(directions)
+        if return_directions: return (self.rng.choice(directions), directions)
+        return self.rng.choice(directions)
 
     def get_random_location(self, min_width=0, max_width=None, min_height=0, max_height=None):
         """ Get a random location from within the specified range """
         max_defaults = [self.width-1, self.height-1]
         max_vars = [max_width, max_height]
         max_width, max_height = [max_defaults[i] if max_vars[i] == None else max_vars[i] for i in range(2)]
-        return (random.randint(min_width, max_width), random.randint(min_height, max_height))
+        return (self.rng.integers(min_width, max_width+1), self.rng.integers(min_height, max_height+1)) # inclusive of high and low.
 
     def _coords_to_index(self, coords):
         return coords[1] * self.width + coords[0]
