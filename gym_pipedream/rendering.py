@@ -1,25 +1,29 @@
 import pygame
 import numpy as np
 import os
+import importlib.resources as resources
 
-#base_path = os.path.dirname(__file__)
-base_path = os.path.join(os.path.dirname(__file__), "../images/pieces/")
+# Use importlib.resources to load images from the package's resources
+def load_image(image_name):
+    with resources.path('gym_pipedream.images.pieces', image_name) as image_path:
+        return pygame.image.load(image_path)
 
 PIPE_IMG = {
-    "floor":            pygame.image.load(os.path.join(base_path, "floor.png")),
-    "vertical":         pygame.image.load(os.path.join(base_path, "vert.png")),
-    "horizontal":       pygame.image.load(os.path.join(base_path, "horiz.png")),
-    "cross":            pygame.image.load(os.path.join(base_path, "cross.png")),
-    "leftup":           pygame.image.load(os.path.join(base_path, "leftup.png")),
-    "leftdown":         pygame.image.load(os.path.join(base_path, "leftdown.png")),
-    "rightup":          pygame.image.load(os.path.join(base_path, "rightup.png")),
-    "rightdown":        pygame.image.load(os.path.join(base_path, "rightdown.png")),
-    "wall":             pygame.image.load(os.path.join(base_path, "wall.png")),
-    "startdown":        pygame.image.load(os.path.join(base_path, "startdown.png")),
-    "startup":          pygame.image.load(os.path.join(base_path, "startup.png")),
-    "startleft":        pygame.image.load(os.path.join(base_path, "startleft.png")),
-    "startright":       pygame.image.load(os.path.join(base_path, "startright.png"))
+    "floor":            load_image("floor.png"),
+    "vertical":         load_image("vert.png"),
+    "horizontal":       load_image("horiz.png"),
+    "cross":            load_image("cross.png"),
+    "leftup":           load_image("leftup.png"),
+    "leftdown":         load_image("leftdown.png"),
+    "rightup":          load_image("rightup.png"),
+    "rightdown":        load_image("rightdown.png"),
+    "wall":             load_image("wall.png"),
+    "startdown":        load_image("startdown.png"),
+    "startup":          load_image("startup.png"),
+    "startleft":        load_image("startleft.png"),
+    "startright":       load_image("startright.png")
 }
+
 
 class Renderer:
     def __init__(self, window_size=512, render_fps=4, render_mode="human"):
