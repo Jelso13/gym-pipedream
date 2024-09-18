@@ -10,7 +10,7 @@ import glob
 
 def test_random_agent_render(steps=100):
     env = gym.make("PipeDream-v0")
-    env.reset()
+    env.reset(seed=0)
     env.render()
     for e in range(steps):
         action = env.action_space.sample()
@@ -22,10 +22,10 @@ def test_random_agent_render(steps=100):
     env.close()
 
 def test_working_loop(steps=100, render_gif=False, **kwargs):
-    random.seed(0)
+
     #env = PipeDreamEnv(**kwargs)
     env = gym.make("PipeDream-v0", **kwargs)
-    state, _ = env.reset()
+    state, _ = env.reset(seed=0)
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
     env.next_tiles[1].state2 = env.pipe_capacity
     actions = [[7,6], [7,5], [7,4], [8,4], [8,5], [6,5]]
@@ -66,7 +66,7 @@ def get_cell_center_col(env, x, y, last_state):
 
 def diff_board_size(steps=100, render_gif=False, width=10, height=7, **kwargs):
     env = gym.make("PipeDream-v0", width=width, height=height, **kwargs)
-    env.reset()
+    env.reset(seed=0)
     env.render()
     for i in range(steps):
         action = env.action_space.sample()

@@ -1,11 +1,26 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-import random
-from typing import Optional
 from gym_pipedream.grid_elements import *
 from gym_pipedream.rendering import Renderer
 
+# ENV_DEFAULTS = {
+#     "render_mode":      "human",
+#     "width":            10,
+#     "height":           7,
+#     #"pipe_capacity":    7,
+#     "pipe_capacity":    3,
+#     "rewards":          {
+#         "spill": -10,
+#         "new_pipe": 1
+#     },
+#     "print_width":      50,
+#     "window_size":      600,
+#     "obs_low":          -2,
+#     "obs_high":         15,
+#     "tile_queue_len":   5,
+#     "render_fps":       1,
+# }
 
 class PipeDreamEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array", "ascii"], "render_fps": 4}
@@ -17,7 +32,8 @@ class PipeDreamEnv(gym.Env):
             else:
                 setattr(self, key, ENV_DEFAULTS[key])
 
-        self.board = Board(self.width, self.height, self.pipe_capacity, self.render_mode, print_width=self.print_width)
+
+        self.board = Board(self.width, self.height, self.pipe_capacity, 0, self.render_mode, print_width=self.print_width)
         self.pipe_capacity = self.pipe_capacity
         self.next_tiles = [None] * self.tile_queue_len
         self.current_tile = None
@@ -34,8 +50,6 @@ class PipeDreamEnv(gym.Env):
         else:
             self.obs_mode = kwargs["obs_mode"]
 
-        
-
         # handle the pygame render if render mode is human
         if self.render_mode in ["human", "rgb_array"]:
             self.renderer = Renderer(self.window_size, self.render_fps, render_mode=self.render_mode)
@@ -43,17 +57,15 @@ class PipeDreamEnv(gym.Env):
 
     def reset(self, seed=None, return_info=False, options=None):
         super().reset(seed=seed) # seed self.np_random
-        #self.seed = seed
-        #random.seed(0)
-        #np.random.seed(0)
-
+        if seed is not None:
+            self.board.set_seed(seed)
         # Reset the board
         self.board.reset_board()
 
         # init walls if any
 
         # init list of next tiles
-        self.next_tiles = [random.choice(PLAYING_TILES)(state=self.pipe_capacity) for i in range(self.tile_queue_len)]
+        self.next_tiles = [self.np_random.choice(PLAYING_TILES)(state=self.pipe_capacity) for i in range(self.tile_queue_len)]
         self.current_tile = self.next_tiles[0]
 
         return self._get_observation(), {}
@@ -80,16 +92,14 @@ class PipeDreamEnv(gym.Env):
         # set the action if possible
         if self.board.set_tile(action, self.current_tile):
             self.next_tiles.pop(0)
-            self.next_tiles.append(random.choice(PLAYING_TILES)(state=self.pipe_capacity))
+            self.next_tiles.append(self.np_random.choice(PLAYING_TILES)(state=self.pipe_capacity))
             self.current_tile = self.next_tiles[0]
-        
 
         pipe_filled, done = self.board.calc_next_state()
         #self.board.calc_next_state()
         next_state = self._get_observation()
         reward = -10 if done else self._get_reward()
         info = self._get_info(pipe_filled)
-
 
         return next_state, reward, done, False, info
 
@@ -168,37 +178,26 @@ class PipeDreamEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    random.seed(0)
     #env = PipeDreamEnv(render_mode="human", window_size=900)
-    env = PipeDreamEnv(width=9, height=9, render_mode="human")
+    env = PipeDreamEnv(render_mode="human")
     #env = PipeDreamEnv(render_mode="ascii", window_size=600)
-    state, info = env.reset()
+    state, info = env.reset(seed=0)
     env.render()
 
-    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), RightUpPipe(), LeftUpPipe(), HorizontalPipe()]
     env.current_tile = env.next_tiles[0]
 
     #env.render()
+    actions = [[8, 5], [7, 5], [6, 5], [7, 4], [6, 6], [7, 6], [6, 4]]
     for i in range(100):
         action = env.action_space.sample()
-        if i == 0:
-            action = [7,6]
-        if i == 1:
-            action = [7,5]
-        if i == 2:
-            action = [7,4]
-        if i == 3:
-            random.seed(0)
-            action = [8,4]
-        if i == 4:
-            action = [8,5]
-        if i == 5:
-            action = [6,5]
-        
+        if i < len(actions):
+            action = actions[i] # x, y
+
         print("action = ", action)
         print("next tiles = ", [t.type for t in env.next_tiles])
         print("start state = ", env.board.tiles[2].state)
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")
