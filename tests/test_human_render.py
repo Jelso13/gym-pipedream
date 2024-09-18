@@ -14,7 +14,7 @@ def test_random_agent_render(steps=100):
     env.render()
     for e in range(steps):
         action = env.action_space.sample()
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if done:
             break
@@ -25,7 +25,7 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
     random.seed(0)
     #env = PipeDreamEnv(**kwargs)
     env = gym.make("PipeDream-v0", **kwargs)
-    state = env.reset()
+    state, _ = env.reset()
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
     env.next_tiles[1].state2 = env.pipe_capacity
     actions = [[7,6], [7,5], [7,4], [8,4], [8,5], [6,5]]
@@ -37,7 +37,7 @@ def test_working_loop(steps=100, render_gif=False, **kwargs):
         else:
             action = [random.randrange(0, 6) for i in range(2)]
         env.render()
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         if render_gif:
             pygame.image.save(env.renderer.window, "temp{}.png".format(i))
         if done:
@@ -70,7 +70,7 @@ def diff_board_size(steps=100, render_gif=False, width=10, height=7, **kwargs):
     env.render()
     for i in range(steps):
         action = env.action_space.sample()
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if render_gif:
             pygame.image.save(env.renderer.window, "temp{}.png".format(i))

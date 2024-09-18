@@ -41,8 +41,8 @@ class PipeDreamEnv(gym.Env):
             self.renderer = Renderer(self.window_size, self.render_fps, render_mode=self.render_mode)
         # Potentially include a curses rendering **
 
-    def reset(self, seed=0, return_info=False, options=None):
-        #super().reset(seed=seed) # seed self.np_random
+    def reset(self, seed=None, return_info=False, options=None):
+        super().reset(seed=seed) # seed self.np_random
         #self.seed = seed
         #random.seed(0)
         #np.random.seed(0)
@@ -56,7 +56,7 @@ class PipeDreamEnv(gym.Env):
         self.next_tiles = [random.choice(PLAYING_TILES)(state=self.pipe_capacity) for i in range(self.tile_queue_len)]
         self.current_tile = self.next_tiles[0]
 
-        return self._get_observation()
+        return self._get_observation(), {}
 
     def step(self, action):
         """
@@ -91,7 +91,7 @@ class PipeDreamEnv(gym.Env):
         info = self._get_info(pipe_filled)
 
 
-        return next_state, reward, done, info
+        return next_state, reward, done, False, info
 
     def render(self, mode=None, simplified=False):
         if mode == None:
@@ -170,9 +170,9 @@ class PipeDreamEnv(gym.Env):
 if __name__ == "__main__":
     random.seed(0)
     #env = PipeDreamEnv(render_mode="human", window_size=900)
-    env = PipeDreamEnv(width=5, height=5, render_mode="human")
+    env = PipeDreamEnv(width=8, height=8, render_mode="human")
     #env = PipeDreamEnv(render_mode="ascii", window_size=600)
-    state = env.reset()
+    state, info = env.reset()
     env.render()
 
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
@@ -198,7 +198,8 @@ if __name__ == "__main__":
         print("action = ", action)
         print("next tiles = ", [t.type for t in env.next_tiles])
         print("start state = ", env.board.tiles[42].state)
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
+        print(state, reward, done, truncated, info)
         env.render()
         if done:
             print("Game Over!")

@@ -1,3 +1,5 @@
+from math import trunc
+
 import gymnasium as gym
 import gym_pipedream
 from gym_pipedream.grid_elements import *
@@ -11,7 +13,7 @@ def test_random_agent(steps=100):
     for e in range(steps):
         action = env.action_space.sample()
         print("action = ", action)
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         print("reward = ", reward)
         if done:
@@ -21,7 +23,7 @@ def test_random_agent(steps=100):
 def core_test_with_water_loop(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
     random.seed(0)
     env = PipeDreamEnv(render_mode="ascii", pipe_capacity=pipe_capacity)
-    state = env.reset()
+    state, _ = env.reset()
     env.render()
 
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
@@ -37,7 +39,7 @@ def core_test_with_water_loop(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]],
             #action = env.action_space.sample()
             action = [random.randint(0,w-1), random.randint(0,h-1)]
         
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")
@@ -68,12 +70,12 @@ def test_tap_nonreplaceable():
 def test_replaceable_empty_pipe():
     random.seed(0)
     env = PipeDreamEnv(render_mode="ascii")
-    state = env.reset()
+    state, _ = env.reset()
     env.render()
     for i in range(100):
         action = [3,3]
         held_tile = env.current_tile
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")
@@ -83,7 +85,7 @@ def test_replaceable_empty_pipe():
 def test_partially_filled_pipes_nonreplaceable():
     random.seed(0)
     env = PipeDreamEnv(render_mode="ascii")
-    state = env.reset()
+    state, _ = env.reset()
     env.render()
     env.board.set_tile([7,6], LeftUpPipe())
     #env.board.tiles[33] = LeftUpPipe()
@@ -96,7 +98,7 @@ def test_partially_filled_pipes_nonreplaceable():
         else:
             action = [3,3]
         held_tile = env.current_tile
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")
@@ -107,7 +109,7 @@ def test_longer_fill_time():
     random.seed(0)
     pipe_capacity = 8
     env = PipeDreamEnv(render_mode="ascii", pipe_capacity=pipe_capacity)
-    state = env.reset()
+    state, _ = env.reset()
     env.render()
 
     env.next_tiles = [LeftUpPipe(state=pipe_capacity), CrossPipe(state=pipe_capacity), RightDownPipe(state=pipe_capacity), LeftDownPipe(state=pipe_capacity), LeftUpPipe(state=pipe_capacity), HorizontalPipe(state=pipe_capacity)]
@@ -139,7 +141,7 @@ def test_longer_fill_time():
         print("action = ", action)
         print("next tiles = ", [t.type for t in env.next_tiles])
         print("start state = ", env.board.tiles[42].state)
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         env.render()
         if done:
             print("Game Over!")
@@ -166,7 +168,7 @@ def test_pipe_capacity_1():
 def test_default_reward(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_capacity=5):
     random.seed(0)
     env = PipeDreamEnv(render_mode="ascii", pipe_capacity=pipe_capacity)
-    state = env.reset()
+    state, _ = env.reset()
     env.render()
     env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
     env.current_tile = env.next_tiles[0]
@@ -179,7 +181,7 @@ def test_default_reward(actions = [[7,6], [7,5], [7,4],[8,4],[8,5],[6,5]], pipe_
         else:
             #action = env.action_space.sample()
             action = [random.randint(0,5), random.randint(0,4)]
-        state, reward, done, info = env.step(action)
+        state, reward, done, truncated, info = env.step(action)
         print("reward = ", reward)
         total_reward += reward
         print("total_reward = ", total_reward)
