@@ -23,7 +23,7 @@ from gym_pipedream.rendering import Renderer
 # }
 
 class PipeDreamEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rgb_array", "ascii"], "render_fps": 4}
+    metadata = {"render_modes": ["human", "rgb_array", "human_simplified", "rgb_array_simplified", "ascii"], "render_fps": 4}
 
     def __init__(self, **kwargs):
         for key in ENV_DEFAULTS.keys():
@@ -53,6 +53,8 @@ class PipeDreamEnv(gym.Env):
         # handle the pygame render if render mode is human
         if self.render_mode in ["human", "rgb_array"]:
             self.renderer = Renderer(self.window_size, self.render_fps, render_mode=self.render_mode)
+        elif self.render_mode in ["human_simplified", "rgb_array_simplified"]:
+            self.renderer = Renderer(self.window_size, self.render_fps, render_mode=self.render_mode[:-11])
         # Potentially include a curses rendering **
 
     def reset(self, seed=None, return_info=False, options=None):
@@ -103,11 +105,12 @@ class PipeDreamEnv(gym.Env):
 
         return next_state, reward, done, False, info
 
-    def render(self, mode=None, simplified=False):
-        if mode == None:
-            mode = self.render_mode
+    def render(self):
+        mode = self.render_mode
         if mode in ["human", "rgb_array"]:
-            return self.renderer.render(self.board, self.next_tiles, mode=mode, simplified=simplified)
+            return self.renderer.render(self.board, self.next_tiles, mode=mode, simplified=False)
+        elif mode in ["human_simplified", "rgb_array_simplified"]:
+            return self.renderer.render(self.board, self.next_tiles, mode=mode, simplified=True)
         else:
             print(self.board)
             print("")
@@ -173,26 +176,39 @@ class PipeDreamEnv(gym.Env):
         self.board[loc[1]*self.width + loc[0]] = obj
 
     def close(self):
-        if self.render_mode in ["human", "rgb_array"]:
+        if self.render_mode in ["human", "rgb_array", "human_simplified", "rgb_array_simplified"]:
             self.renderer.close()
 
 
 if __name__ == "__main__":
     #env = PipeDreamEnv(render_mode="human", window_size=900)
-    env = PipeDreamEnv(render_mode="human")
+    env = PipeDreamEnv(width=9, height=9, render_mode="human_simplified")
     #env = PipeDreamEnv(render_mode="ascii", window_size=600)
-    state, info = env.reset(seed=0)
-    env.render()
+    state, info = env.reset()
 
-    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), RightUpPipe(), LeftUpPipe(), HorizontalPipe()]
+    env.render()
+    print(env.renderer.render(env.board, env.next_tiles, mode="human", simplified=True))
+    env.next_tiles = [LeftUpPipe(), CrossPipe(), RightDownPipe(), LeftDownPipe(), LeftUpPipe(), HorizontalPipe()]
+
     env.current_tile = env.next_tiles[0]
 
     #env.render()
     actions = [[8, 5], [7, 5], [6, 5], [7, 4], [6, 6], [7, 6], [6, 4]]
     for i in range(100):
         action = env.action_space.sample()
-        if i < len(actions):
-            action = actions[i] # x, y
+        if i == 0:
+            action = [7,6]
+        if i == 1:
+            action = [7,5]
+        if i == 2:
+            action = [7,4]
+        if i == 3:
+            random.seed(0)
+            action = [8,4]
+        if i == 4:
+            action = [8,5]
+        if i == 5:
+            action = [6,5]
 
         print("action = ", action)
         print("next tiles = ", [t.type for t in env.next_tiles])
