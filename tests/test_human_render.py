@@ -148,9 +148,9 @@ if __name__=="__main__":
     #test_3x3_board(window_size=400)
 
     #test_pipe_capacity_10()
-    test_working_loop(render_fps=1)
+    # test_working_loop(render_fps=1)
 
-    #test_working_loop(render_fps=4)
+    test_working_loop(render_fps=4)
     #test_working_loop(render_fps=8)
     #print("Starting capacity 4 test")
     #test_pipe_capacity_4()

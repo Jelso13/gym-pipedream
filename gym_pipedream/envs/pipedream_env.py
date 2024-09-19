@@ -33,7 +33,7 @@ class PipeDreamEnv(gym.Env):
                 setattr(self, key, ENV_DEFAULTS[key])
 
 
-        self.board = Board(self.width, self.height, self.pipe_capacity, 0, self.render_mode, print_width=self.print_width)
+        self.board = Board(self.width, self.height, self.pipe_capacity, 0, self.render_mode, print_width=self.print_width, fixed_tap_location=self.fixed_tap_location)
         self.pipe_capacity = self.pipe_capacity
         self.next_tiles = [None] * self.tile_queue_len
         self.current_tile = None
@@ -105,7 +105,7 @@ class PipeDreamEnv(gym.Env):
 
         return next_state, reward, done, False, info
 
-    def render(self):
+    def render(self, mode=""):
         mode = self.render_mode
         if mode in ["human", "rgb_array"]:
             return self.renderer.render(self.board, self.next_tiles, mode=mode, simplified=False)
@@ -113,7 +113,6 @@ class PipeDreamEnv(gym.Env):
             return self.renderer.render(self.board, self.next_tiles, mode=mode, simplified=True)
         else:
             print(self.board)
-            print("")
 
     def _get_observation(self):
         if self.obs_mode == "default":

@@ -16,6 +16,7 @@ ENV_DEFAULTS = {
     "obs_high":         15,
     "tile_queue_len":   5,
     "render_fps":       1,
+    "fixed_tap_location":False,
 }
 
 
@@ -171,7 +172,7 @@ class Board:
 
     """
 
-    def __init__(self, width, height, pipe_capacity, seed, print_style, print_width):
+    def __init__(self, width, height, pipe_capacity, seed, print_style, print_width, fixed_tap_location=True):
         self.width = width
         self.height = height
 
@@ -181,6 +182,9 @@ class Board:
         self.pipe_capacity = pipe_capacity
         self.set_seed(seed)
         self.print_width = print_width
+        if fixed_tap_location:
+            self.tap_location = list(self.get_random_location())
+
 
     def set_seed(self, seed):
         self.seed = seed
@@ -206,8 +210,8 @@ class Board:
         self.tiles = [Floor()] * self.width * self.height
         self.init_tap()
 
-    def init_tap(self):
-        tap_location = list(self.get_random_location())
+    def init_tap(self, location=None):
+        tap_location = self.tap_location or list(self.get_random_location())
         tap_direction = self.get_valid_tap_direction(tap_location)
         self.set_tile(tap_location, StartingPipe(direction=tap_direction))
         self.current_water_position = self._coords_to_index(tap_location)
