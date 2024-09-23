@@ -184,7 +184,8 @@ class Board:
         self.print_width = print_width
         if fixed_tap_location:
             self.tap_location = list(self.get_random_location())
-
+        else:
+            self.tap_location = None
 
     def set_seed(self, seed):
         self.seed = seed
@@ -210,7 +211,7 @@ class Board:
         self.tiles = [Floor()] * self.width * self.height
         self.init_tap()
 
-    def init_tap(self, location=None):
+    def init_tap(self):
         tap_location = self.tap_location or list(self.get_random_location())
         tap_direction = self.get_valid_tap_direction(tap_location)
         self.set_tile(tap_location, StartingPipe(direction=tap_direction))
