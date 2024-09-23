@@ -1,7 +1,8 @@
 import gymnasium as gym
+import numpy as np
+
 from gym_pipedream.rendering import Renderer
 from gymnasium import spaces
-import numpy as np
 
 class SimplifiedImageObservation(gym.ObservationWrapper):
     def __init__(self, env):
