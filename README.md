@@ -4,11 +4,11 @@ An [OpenAI Gym](https://github.com/openai/gym) environment inspired by the Windo
 
 Human Rendering:
 
-![til](./images/pipedream.GIF)
+![til](./gym_pipedream/images/pipedream.GIF)
 
 Ascii Rendering:
 
-![til](./images/time_remaining.png)
+![til](./gym_pipedream/images/time_remaining.png)
 
 ### **Requirements**
 - Python 3
@@ -16,6 +16,11 @@ Ascii Rendering:
 - ...
 
 ## Installation
+You can install this repository via pip:
+
+```
+pip install git+https://github.com/Jelso13/gym-pipedream/
+```
 
 ## Design
 ---
